@@ -1,0 +1,7 @@
+
+
+1. Auth Adding
+2. JWT
+3. /myaccount endpoint
+4. Auth CRUD
+5. 

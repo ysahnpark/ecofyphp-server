@@ -145,6 +145,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        App\Providers\EcofyAuthServiceProvider::class,
+        App\Providers\Ecofy\AccountServiceProvider::class,
+
         // Other service providers
         Laravel\Socialite\SocialiteServiceProvider::class,
     ],
