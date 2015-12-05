@@ -1,7 +1,6 @@
 
-
-1. Auth Adding
-2. JWT
-3. /myaccount endpoint
-4. Auth CRUD
-5. 
+- DB seeding with host root
+- Account Edit/delete
+- EcoQL to Eloquent
+- local signin
+- AbstractResourceService

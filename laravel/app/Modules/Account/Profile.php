@@ -1,6 +1,5 @@
 <?php
-
-namespace App;
+namespace App\Modules\Account;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +16,6 @@ class Profile extends Model
      */
     public function account()
     {
-        return $this->belongsTo('App\Account');
+        return $this->belongsTo('App\Modules\Account\Account');
     }
 }

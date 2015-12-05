@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Modules\Auth;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +25,6 @@ class Auth extends Model
      */
     public function account()
     {
-        return $this->belongsTo('App\Account',  'accountUuid',  'uuid');
+        return $this->belongsTo('App\Modules\Account\Account',  'accountUuid',  'uuid');
     }
 }

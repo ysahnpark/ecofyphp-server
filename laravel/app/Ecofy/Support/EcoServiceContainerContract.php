@@ -1,6 +1,5 @@
 <?php
-
-namespace App\Modules\Service;
+namespace App\Ecofy\Service;
 
 interface AuthServiceContract
 {

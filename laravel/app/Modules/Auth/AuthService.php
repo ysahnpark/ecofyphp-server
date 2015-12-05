@@ -8,15 +8,23 @@ use Log;
 use \Ramsey\Uuid\Uuid;
 use \Firebase\JWT\JWT;
 
+use App\Ecofy\Support\ObjectAccessor;
+
+use App\Ecofy\Support\AbstractResourceService;
+
 // Models
-use App\Account;
-use App\Auth;
-use App\Profile;
+use App\Modules\Account\Account;
+use App\Modules\Account\Profile;
 
 use App\Modules\Auth\AuthServiceContract;
 
-class AuthService implements AuthServiceContract
+class AuthService extends AbstractResourceService
+    implements AuthServiceContract
 {
+    public function __construct() {
+		parent::__construct('\\App\\Modules\\Auth\\Auth');
+	}
+
     public function name()
     {
         return 'AuthService';
@@ -27,15 +35,19 @@ class AuthService implements AuthServiceContract
         $authCredential = $this->buildAuthModel($oauthUser);
         Log::info('Parsed $authCredential:' . print_r($authCredential, true));
 
-        $auth = Auth::where(function ($query) use ($authCredential) {
-                $query->where('authSource', $authCredential->authSource)
-                    ->where('authId', $authCredential->authId);
-                })
-            ->orWhere(function ($query) use ($authCredential) {
+        $query = null;
+        if ($authCredential->authSource == 'local') {
+            $query = Auth::where(function ($query) use ($authCredential) {
                 $query->where('authSource', $authCredential->authSource)
                     ->where('username', $authCredential->username);
-                })
-            ->first();
+                });
+        } else {
+            $query = Auth::where(function ($query) use ($authCredential) {
+                $query->where('authSource', $authCredential->authSource)
+                    ->where('authId', $authCredential->authId);
+                });
+        }
+        $auth = $query->first();
 
         Log::info('Fetched Auth:' . print_r($auth, true));
         if (!$auth && $createIfNoMatch) {
@@ -47,19 +59,13 @@ class AuthService implements AuthServiceContract
             $profileModel = $this->buildProfileModel($oauthUser);
             Log::info('Parsed $profileModel:' . print_r($profileModel, true));
 
-            DB::transaction(function () use($accountModel, $profileModel, $authCredential) {
-                $accountModel->save();
-                $profileModel->accountUuid = $accountModel->uuid;
-                $profileModel->save();
-                $authCredential->accountUuid = $accountModel->uuid;
-                $authCredential->save();
-                $auth = $authCredential;
-                $auth->account = $accountModel;
-            });
+            $this->createAccount($accountModel, $profileModel, $authCredential);
+            $auth = $authCredential;
+            $auth->account = $accountModel;
         }
 
         if (!$auth) {
-            print_r("NOT-FOUND!!");
+            Log::info('Signin failure');
         }
 
         // @todo: Update account's lastLogin date
@@ -76,6 +82,22 @@ class AuthService implements AuthServiceContract
         return $retval;
     }
 
+    /**
+     * Create account, profile and auth within transaction
+     */
+    public function createAccount($accountModel, $profileModel, $authCredential)
+    {
+        DB::transaction(function () use($accountModel, $profileModel, $authCredential) {
+            $accountModel->save();
+            $profileModel->accountUuid = $accountModel->uuid;
+            $profileModel->save();
+            $authCredential->accountUuid = $accountModel->uuid;
+            $authCredential->save();
+        });
+
+    }
+
+    // @todo: factor out to strategy
     function buildAuthModel($oauthUser)
     {
         $authModel = new Auth();
@@ -115,8 +137,8 @@ class AuthService implements AuthServiceContract
         $profileModel->uuid = Uuid::uuid4();
         $profileModel->familyName = $oauthUser->user['name']['familyName'];
         $profileModel->givenName = $oauthUser->user['name']['givenName'];
-        $profileModel->highlight = $oauthUser->user['braggingRights'];
-        $profileModel->gender = $oauthUser->user['gender'];
+        $profileModel->highlight = ObjectAccessor::get($oauthUser->user, 'braggingRights', null);
+        $profileModel->gender = ObjectAccessor::get($oauthUser->user, 'gender', null);
         $profileModel->language = $oauthUser->user['language'];
 
         return $profileModel;
@@ -148,105 +170,5 @@ class AuthService implements AuthServiceContract
         return $decoded;
     }
 
-    // Resource Access Operations {{
-    /**
-     * Add
-     *
-     * @param Object  $resource - The resource (record) to add
-     * @param Object  $options  - Any options for add operation
-     * @return Model  - Upon success, return the added model
-     */
-    public function add($resource, $options)
-    {
-
-    }
-
-    /**
-     * query
-     *
-     * @param Object  $criteria - The criteria for the query
-     * @param Object  $options  - Any options for query operation
-     * @return Array.<Model>  - Upon success, return the models
-     */
-    public function query($criteria, $options)
-    {
-        Account::with('profile')->get();
-        $records = Auth::all();
-    }
-
-    /**
-     * query
-     *
-     * @param Object  $criteria - The criteria for the query
-     * @param Object  $options  - Any options for query operation
-     * @return number  - Upon success, return count satisfying the criteria
-     */
-    public function count($criteria, $options)
-    {
-        Account::where($criteria->property, $criteria->property)->count();
-        $records = Auth::all();
-    }
-
-    /**
-     * Find
-     *
-     * @param Criteria  $criteria - The crediential object
-     * @param object  $options  - Any options for find operation
-     * @return Model  - Upon success the model returned
-     */
-    public function find($criteria, $options)
-    {
-
-    }
-
-    /**
-     * Find by PK
-     *
-     * @param mixed  $pk - The primary key of the resource to find
-     * @param object  $options  - Any options for find operation
-     * @return Model  - Upon success the model returned
-     */
-    public function findByPK($pk, $options)
-    {
-
-    }
-
-    /**
-     * Update
-     *
-     * @param Criteria  $criteria - The crediential object
-     * @param object  $resource  - The resource (record) to update
-     * @param object  $options  - Any options for update operation
-     * @return Model  - Upon success the model returned
-     */
-    public function update($criteria, $resource, $options)
-    {
-
-    }
-
-    /**
-     * Remove
-     *
-     * @param Criteria  $criteria - The crediential object
-     * @param object  $options  - Any options for remove operation
-     * @return Model  - Upon success the model returned
-     */
-    public function remove($criteria, $options)
-    {
-
-    }
-
-    /**
-     * Remove
-     *
-     * @param mixed  $pk - The primary key of the resource to remove
-     * @param object  $options  - Any options for remove operation
-     * @return Model  - Upon success the model returned
-     */
-    public function removeByPK($pk, $options)
-    {
-
-    }
-
-    // }} Resource Access Operations
+    
 }

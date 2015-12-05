@@ -1,20 +1,19 @@
 <?php
-
 namespace App\Modules\Account;
 
-
-use App\Modules\Service\AbstractResourceService;
+use App\Ecofy\Support\AbstractResourceService;
 
 // Models
 use Illuminate\Database\Eloquent\Model;
-use App\Account;
-use App\Auth;
-use App\Profile;
+use App\Modules\Auth\Auth;
 
 
 class AccountService extends AbstractResourceService
     implements AccountServiceContract
 {
+    public function __construct() {
+		parent::__construct('\\App\\Modules\\Account\\Account', ['profile']);
+	}
 
     // Resource Access Operations {{
     /**
@@ -50,24 +49,13 @@ class AccountService extends AbstractResourceService
      * @param Object  $options  - Any options for query operation
      * @return Array.<Model>  - Upon success, return the models
      */
+     /*
     public function query($criteria, $options = null)
     {
         $result = Account::with('profile')->get();
         return $result;
     }
-
-    /**
-     * query
-     *
-     * @param Object  $criteria - The criteria for the query
-     * @param Object  $options  - Any options for query operation
-     * @return number  - Upon success, return count satisfying the criteria
-     */
-    public function count($criteria, $options = null)
-    {
-        $count = Account::where($criteria->property, $criteria->op, $criteria->val)->count();
-        return $count;
-    }
+    */
 
     /**
      * Find
@@ -76,11 +64,13 @@ class AccountService extends AbstractResourceService
      * @param object  $options  - Any options for find operation
      * @return Model  - Upon success the model returned
      */
+     /*
     public function find($criteria, $options = null)
     {
         $record = Account::where($criteria->property, $criteria->op, $criteria->val)->first();
         return $record;
     }
+    */
 
     /**
      * Find by PK
@@ -89,11 +79,13 @@ class AccountService extends AbstractResourceService
      * @param object  $options  - Any options for find operation
      * @return Model  - Upon success the model returned
      */
+     /*
     public function findByPK($pk, $options = null)
     {
         $record = Account::where($this->primaryKeyName, '=', $pk)->first();
         return $record;
     }
+    */
 
     /**
      * Update
@@ -103,10 +95,12 @@ class AccountService extends AbstractResourceService
      * @param object  $options  - Any options for update operation
      * @return Model  - Upon success the model returned
      */
+     /*
     public function update($criteria, $resource, $options = null)
     {
 
     }
+    */
 
     /**
      * Remove
@@ -115,11 +109,13 @@ class AccountService extends AbstractResourceService
      * @param object  $options  - Any options for remove operation
      * @return Model  - Upon success the model returned
      */
+     /*
     public function remove($criteria, $options = null)
     {
         $deletedRows = Account::where($criteria->property, $criteria->op, $criteria->val)->delete();
         return $deletedRows;
     }
+    */
 
     /**
      * Remove
@@ -128,11 +124,13 @@ class AccountService extends AbstractResourceService
      * @param object  $options  - Any options for remove operation
      * @return Model  - Upon success the model returned
      */
+     /*
     public function removeByPK($pk, $options = null)
     {
         $deletedRows = Account::where($this->primaryKeyName, '=', $pk)->delete();
         return $deletedRows;
     }
+    */
 
     // }} Resource Access Operations
 }

@@ -10,7 +10,7 @@ use Exception;
  * $criteriaAst = $srqlParser->parse('a=3 AND b=4');
  * $criteriaAst->text;
  */
- class SRQLParser
+class SRQLParser
 {
     public $symbols = array();
     public $terminals = array();
@@ -859,7 +859,7 @@ case 16:
 break;
 case 17:
 
-             $thisS = $yy->text;
+             $thisS = substr($yy->text, 1, -1);
 
 break;
 case 24:

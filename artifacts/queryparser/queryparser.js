@@ -75,7 +75,7 @@ var parser = (function(){
 var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,8],$V1=[1,14],$V2=[1,16],$V3=[5,6,14],$V4=[1,17],$V5=[5,6,9,14],$V6=[1,34],$V7=[1,35],$V8=[1,37],$V9=[23,24],$Va=[5,6,9,14,36],$Vb=[14,36];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"start":3,"search_condition":4,"EOF":5,"OR":6,"boolean_term":7,"boolean_factor":8,"AND":9,"boolean_test":10,"boolean_primary":11,"predicate":12,"LPAREN":13,"RPAREN":14,"comparison_predicate":15,"in_predicate":16,"nin_predicate":17,"like_predicate":18,"between_predicate":19,"IDEN":20,"comp_op":21,"value_expression":22,"NUMBER":23,"STRING_LITERAL":24,"EQ":25,"NEQ":26,"GT":27,"GE":28,"LT":29,"LE":30,"IN":31,"in_predicate_value":32,"NIN":33,"in_value_list":34,"in_value_list_element":35,"COMMA":36,"LIKE":37,"BETWEEN":38,"$accept":0,"$end":1},
+symbols_: {"error":2,"start":3,"query_expression":4,"EOF":5,"OR":6,"boolean_term":7,"boolean_factor":8,"AND":9,"boolean_test":10,"boolean_primary":11,"predicate":12,"LPAREN":13,"RPAREN":14,"comparison_predicate":15,"in_predicate":16,"nin_predicate":17,"like_predicate":18,"between_predicate":19,"IDEN":20,"comp_op":21,"value_expression":22,"NUMBER":23,"STRING_LITERAL":24,"EQ":25,"NEQ":26,"GT":27,"GE":28,"LT":29,"LE":30,"IN":31,"in_predicate_value":32,"NIN":33,"in_value_list":34,"in_value_list_element":35,"COMMA":36,"LIKE":37,"BETWEEN":38,"$accept":0,"$end":1},
 terminals_: {2:"error",5:"EOF",6:"OR",9:"AND",13:"LPAREN",14:"RPAREN",20:"IDEN",23:"NUMBER",24:"STRING_LITERAL",25:"EQ",26:"NEQ",27:"GT",28:"GE",29:"LT",30:"LE",31:"IN",33:"NIN",36:"COMMA",37:"LIKE",38:"BETWEEN"},
 productions_: [0,[3,2],[4,3],[4,1],[7,1],[7,3],[8,1],[10,1],[11,1],[11,3],[12,1],[12,1],[12,1],[12,1],[12,1],[15,3],[22,1],[22,1],[21,1],[21,1],[21,1],[21,1],[21,1],[21,1],[16,3],[17,3],[32,3],[34,1],[34,3],[35,1],[18,3],[19,5]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
@@ -84,85 +84,126 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
-return $$[$0-1];
+
+        return $$[$0-1];
+        
 break;
 case 2:
-this.$ = {
-        	op: 'or',
-        	args: [ $$[$0-2], $$[$0] ]
-        	};
+
+        /*php
+        this.$ = [
+        	'op' => 'or',
+        	'args' => [ $$[$0-2]->text, $$[$0]->text ]
+        ];
+        */
         
 break;
 case 5:
-this.$ = {
-			op: 'and',
-        	args: [ $$[$0-2], $$[$0] ]
-        	};
+
+        /*php
+        this.$ = [
+			'op' => 'and',
+        	'args' => [ $$[$0-2]->text, $$[$0]->text ]
+        ];
+        */
         
 break;
 case 9:
-this.$ = $$[$0-1]
+
+            //php this.$ = $$[$0-1]->text;
+        
 break;
 case 15:
-this.$ = {
-        	var: $$[$0-2],
-        	op: $$[$0-1],
-        	val: $$[$0]
-        	};
+
+        /*php
+        this.$ = [
+        	'var' => $$[$0-2]->text,
+        	'op' => $$[$0-1]->text,
+        	'val' => $$[$0]->text
+        ];
+        */
         
 break;
 case 16:
-this.$ = Number(yytext);
+
+            //php this.$ = floatval($yy->text);
+        
 break;
 case 17:
-this.$ = yytext.substring(1, yytext.length -1);
+
+            //php this.$ = $yy->text;
+        
 break;
 case 24:
-this.$ = {
-			var: $$[$0-2],
-			op: 'in',
-        	val: $$[$0]
-        	};
-        
+
+        /*php
+        this.$ = [
+			'var' => $$[$0-2]->text,
+			'op' => 'in',
+        	'args' => $$[$0]->text
+        ];
+        */
+    
 break;
 case 25:
-this.$ = {
-			var: $$[$0-2],
-			op: 'nin',
-        	val: $$[$0]
-        	};
-        
+
+        /*php
+        this.$ = [
+			'var' => $$[$0-2]->text,
+			'op' => 'nin',
+        	'args' => $$[$0]->text
+        ];
+        */
+    
 break;
 case 26:
-this.$ = [$$[$0-1]];
+
+        //php this.$ = $$[$0-1]->text;
+    
 break;
 case 27:
-this.$ = []; this.$.push($$[$0]); 
+
+        /*php
+        this.$ = [$$[$0]->text];
+        */
+    
 break;
 case 28:
-$$[$0-2].push($$[$0]); this.$ = $$[$0-2]; 
+
+        /*php
+        array_push($$[$0-2]->text, $$[$0]->text); this.$ = $$[$0-2]->text;
+        */
+    
 break;
 case 29:
-this.$ = $$[$0];
+
+            //php this.$ = $$[$0]->text;
+        
 break;
 case 30:
-this.$ = {
-			var: $$[$0-2],
-        	op: 'like',
-    		val: $$[$0],        	
-        	};
-        
+
+        /*php
+        this.$ = [
+			'var' => $$[$0-2]->text,
+        	'op' => 'like',
+    		'val' => $$[$0]->text,
+        ];
+        */
+    
 break;
 case 31:
-this.$ = {
-			var: $$[$0-4],
-        	between: {
-        		from: $$[$0-2],
-        		to: $$[$0]
-        	}
-        	
-        	};
-        
+
+        /*php
+        this.$ = [
+			'var' => $$[$0-4]->text,
+            'op' => 'between',
+        	'args' => [
+        		'from' => $$[$0-2]->text,
+        		'to' => $$[$0]->text
+        	]
+        ];
+        */
+    
 break;
 }
 },
@@ -642,51 +683,51 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:/* skip whitespace */
 break;
-case 1:return 23
+case 1:return 23;
 break;
-case 2:return 9
+case 2:return 9;
 break;
-case 3:return 6
+case 3:return 6;
 break;
-case 4:return 'NOT'
+case 4:return 'NOT';
 break;
-case 5:return 38
+case 5:return 38;
 break;
-case 6:return 37
+case 6:return 37;
 break;
-case 7:return 24
+case 7:return 24;
 break;
-case 8:return 13
+case 8:return 13;
 break;
-case 9:return 14
+case 9:return 14;
 break;
-case 10:return 26
+case 10:return 26;
 break;
-case 11:return 28
+case 11:return 28;
 break;
-case 12:return 30
+case 12:return 30;
 break;
-case 13:return 25
+case 13:return 25;
 break;
-case 14:return 27
+case 14:return 27;
 break;
-case 15:return 29
+case 15:return 29;
 break;
-case 16:return 31
+case 16:return 31;
 break;
-case 17:return 33
+case 17:return 33;
 break;
-case 18:return 'PLUS'
+case 18:return 'PLUS';
 break;
-case 19:return 'MINUS'
+case 19:return 'MINUS';
 break;
-case 20:return 36
+case 20:return 36;
 break;
-case 21:return 20
+case 21:return 20;
 break;
-case 22:return 5
+case 22:return 5;
 break;
-case 23:return 'INVALID'
+case 23:return 'INVALID';
 break;
 }
 },

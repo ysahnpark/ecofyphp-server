@@ -27,6 +27,8 @@ class CreateAccountsTable extends Migration
             $table->string('status', 8);
             $table->string('displayName', 64);
             $table->string('primaryEmail', 64)->index();
+
+            $table->string('roles', 64)->index();
             $table->string('imageUrl')->nullable();
 
             $table->dateTime('lastLogin');

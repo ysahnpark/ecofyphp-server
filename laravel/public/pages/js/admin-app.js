@@ -1,8 +1,9 @@
 // When second argument (array) is provided then this becomes a definition,
 // otherwise it is a loading
+var pathBase = '/pages';
 angular.module('adminApp', ['ngRoute', 'ngCookies', 'account', 'ngMaterial'])
 .config(['$routeProvider', function($routeProvider) {
-    var pathBase = '/pages';
+
     $routeProvider.when('/', {
       //template: '<h5>This is the default route</h5>'
       controller: 'AccountController as accountCtrl',
@@ -47,7 +48,7 @@ angular.module('adminApp', ['ngRoute', 'ngCookies', 'account', 'ngMaterial'])
   this.showProfile = function() {
     AuthService.fetchMyAccount()
     .then(function(account) {
-      $window.location.href = '/public/admin.html#/account/' + account.uuid + '/form';
+      $window.location.href = pathBase + '/admin.html#/account/' + account.uuid + '/form';
     })
     .catch(function(error) {
       alert(JSON.stringify(error, null, 2));
@@ -57,7 +58,7 @@ angular.module('adminApp', ['ngRoute', 'ngCookies', 'account', 'ngMaterial'])
   this.signout = function() {
     AuthService.signout()
     .then(function(data) {
-      $window.location.href = '/public/main.html#/login';
+      $window.location.href = pathBase + '/main.html#/login';
     })
     .catch(function(error) {
       alert(JSON.stringify(error, null, 2));

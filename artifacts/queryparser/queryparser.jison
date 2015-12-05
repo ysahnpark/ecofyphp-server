@@ -1,32 +1,35 @@
+//option namespace:App\Ecofy\Support
+//option class:SRQLParser
+
 /* lexical grammar */
 /* http://stackoverflow.com/questions/8467150/how-to-get-abstract-syntax-tree-ast-out-of-jison-parser */
 %lex
 %%
 
 \s+                   /* skip whitespace */
-[0-9]+("."[0-9]+)?\b  return 'NUMBER'
-'AND'                 return 'AND'
-'OR'                  return 'OR'
-'NOT'                 return 'NOT'
-'BETWEEN'             return 'BETWEEN'
-'LIKE'                return 'LIKE'
-L?\"(\\.|[^\\"])*\"   return 'STRING_LITERAL'
-'('                   return 'LPAREN'
-')'                   return 'RPAREN'
-'!='                  return 'NEQ'
-'>='                  return 'GE'
-'<='                  return 'LE'
-'='                   return 'EQ'
-'>'                   return 'GT'
-'<'                   return 'LT'
-'IN'                  return 'IN'
-'NIN'                 return 'NIN'
-'+'                   return 'PLUS'
-'-'                   return 'MINUS'
-','                   return 'COMMA'
-[_a-zA-Z][_\.a-zA-Z0-9]{0,30}            return 'IDEN'
-<<EOF>>               return 'EOF'
-.                     return 'INVALID'
+[0-9]+("."[0-9]+)?\b  return 'NUMBER';
+'AND'                 return 'AND';
+'OR'                  return 'OR';
+'NOT'                 return 'NOT';
+'BETWEEN'             return 'BETWEEN';
+'LIKE'                return 'LIKE';
+L?\"(\\.|[^\\"])*\"   return 'STRING_LITERAL';
+'('                   return 'LPAREN';
+')'                   return 'RPAREN';
+'!='                  return 'NEQ';
+'>='                  return 'GE';
+'<='                  return 'LE';
+'='                   return 'EQ';
+'>'                   return 'GT';
+'<'                   return 'LT';
+'IN'                  return 'IN';
+'NIN'                 return 'NIN';
+'+'                   return 'PLUS';
+'-'                   return 'MINUS';
+','                   return 'COMMA';
+[_a-zA-Z][_\.a-zA-Z0-9]{0,30}            return 'IDEN';
+<<EOF>>               return 'EOF';
+.                     return 'INVALID';
 
 /lex
 
@@ -41,16 +44,21 @@ $left PLUS MINUS
 %% /* language grammar */
 
 start
-    :  search_condition EOF
-        {return $1;}
+    :  query_expression EOF
+        {
+        return $1;
+        }
     ;
 
-search_condition
-    : search_condition OR boolean_term
-        {$$ = {
-        	op: 'or',
-        	args: [ $1, $3 ]
-        	};
+query_expression
+    : query_expression OR boolean_term
+        {
+        /*php
+        $$ = [
+        	'op' => 'or',
+        	'args' => [ $1->text, $3->text ]
+        ];
+        */
         }
     | boolean_term
     ;
@@ -58,10 +66,13 @@ search_condition
 boolean_term
 	: boolean_factor
 	| boolean_term AND boolean_factor
-		{$$ = {
-			op: 'and',
-        	args: [ $1, $3 ]
-        	};
+		{
+        /*php
+        $$ = [
+			'op' => 'and',
+        	'args' => [ $1->text, $3->text ]
+        ];
+        */
         }
     ;
 
@@ -75,8 +86,10 @@ boolean_test
 
 boolean_primary
 	: predicate
-	| LPAREN search_condition RPAREN
-		{$$ = $2}
+	| LPAREN query_expression RPAREN
+		{
+            //php $$ = $2->text;
+        }
     ;
 
 predicate
@@ -89,19 +102,26 @@ predicate
 
 comparison_predicate
 	: IDEN comp_op value_expression
-		{$$ = {
-        	var: $1,
-        	op: $2,
-        	val: $3
-        	};
+		{
+        /*php
+        $$ = [
+        	'var' => $1->text,
+        	'op' => $2->text,
+        	'val' => $3->text
+        ];
+        */
         }
     ;
 
 value_expression
 	: NUMBER
-		{$$ = Number(yytext);}
+		{
+            //php $$ = floatval($yy->text);
+        }
 	| STRING_LITERAL
-		{$$ = yytext.substring(1, yytext.length -1);}
+		{
+            //php $$ = substr($yy->text, 1, -1);
+        }
 	;
 
 comp_op
@@ -115,60 +135,85 @@ comp_op
 
 in_predicate
 	: IDEN IN in_predicate_value
-	{$$ = {
-			var: $1,
-			op: 'in',
-        	val: $3
-        	};
-        }
+	{
+        /*php
+        $$ = [
+			'var' => $1->text,
+			'op' => 'in',
+        	'args' => $3->text
+        ];
+        */
+    }
+
     ;
 
 nin_predicate
 	: IDEN NIN in_predicate_value
-	{$$ = {
-			var: $1,
-			op: 'nin',
-        	val: $3
-        	};
-        }
+	{
+        /*php
+        $$ = [
+			'var' => $1->text,
+			'op' => 'nin',
+        	'args' => $3->text
+        ];
+        */
+    }
     ;
 
 in_predicate_value
 	: LPAREN in_value_list RPAREN
-	{$$ = [$2];}
+	{
+        //php $$ = $2->text;
+    }
     ;
 
 in_value_list
 	: in_value_list_element
-		{$$ = []; $$.push($1); }
+	{
+        /*php
+        $$ = [$1->text];
+        */
+    }
 	| in_value_list COMMA in_value_list_element
-		{$1.push($3); $$ = $1; }
+	{
+        /*php
+        array_push($1->text, $3->text); $$ = $1->text;
+        */
+    }
 	;
 
 in_value_list_element
 	: value_expression
-		{$$ = $1;}
+		{
+            //php $$ = $1->text;
+        }
 	;
 
 like_predicate
 	: IDEN LIKE value_expression
-	{$$ = {
-			var: $1,
-        	op: 'like',
-    		val: $3,        	
-        	};
-        }
+	{
+        /*php
+        $$ = [
+			'var' => $1->text,
+        	'op' => 'like',
+    		'val' => $3->text,
+        ];
+        */
+    }
     ;
 
 between_predicate
 	: IDEN BETWEEN value_expression AND value_expression
-	{$$ = {
-			var: $1,
-        	between: {
-        		from: $3,
-        		to: $5
-        	}
-        	
-        	};
-        }
+	{
+        /*php
+        $$ = [
+			'var' => $1->text,
+            'op' => 'between',
+        	'args' => [
+        		'from' => $3->text,
+        		'to' => $5->text
+        	]
+        ];
+        */
+    }
     ;

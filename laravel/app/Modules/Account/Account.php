@@ -1,6 +1,5 @@
 <?php
-
-namespace App;
+namespace App\Modules\Account;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,7 +17,7 @@ class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatabl
      */
     public function profile()
     {
-        return $this->hasOne('App\Profile', 'accountUuid', 'uuid');
+        return $this->hasOne('App\Modules\Account\Profile', 'accountUuid', 'uuid');
     }
 
 
@@ -27,7 +26,7 @@ class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatabl
      */
     public function auths()
     {
-        return $this->hasMany('App\Auth', 'accountUuid', 'uuid');
+        return $this->hasMany('App\Modules\Auth\Auth', 'accountUuid', 'uuid');
     }
 
     // From Authenticatable
