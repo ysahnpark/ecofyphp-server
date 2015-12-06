@@ -30,7 +30,10 @@ class EcofyAuthenticate
         if (!empty($ecofyToken)) {
             $decodedToken = $authService->decodeToken($ecofyToken);
             $account = $accountService->findByPK($decodedToken->id);
-            \Auth::login($account);
+            if (!empty($account)) {
+                \Auth::login($account);
+            }
+
 
             /*
             print('---DECODED---');

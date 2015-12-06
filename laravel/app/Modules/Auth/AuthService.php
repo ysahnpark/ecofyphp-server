@@ -9,7 +9,7 @@ use \Ramsey\Uuid\Uuid;
 use \Firebase\JWT\JWT;
 
 use App\Ecofy\Support\ObjectAccessor;
-
+use App\Ecofy\Support\EcoCriteriaBuilder;
 use App\Ecofy\Support\AbstractResourceService;
 
 // Models
@@ -18,11 +18,12 @@ use App\Modules\Account\Profile;
 
 use App\Modules\Auth\AuthServiceContract;
 
+
 class AuthService extends AbstractResourceService
     implements AuthServiceContract
 {
     public function __construct() {
-		parent::__construct('\\App\\Modules\\Auth\\Auth');
+		parent::__construct('\\App\\Modules\\Auth\\Auth',['account']);
 	}
 
     public function name()
@@ -32,6 +33,8 @@ class AuthService extends AbstractResourceService
 
     public function authenticate($oauthUser, $createIfNoMatch)
     {
+        $accountService = \App::make('App\Modules\Account\AccountServiceContract');
+
         $authCredential = $this->buildAuthModel($oauthUser);
         Log::info('Parsed $authCredential:' . print_r($authCredential, true));
 
@@ -41,14 +44,27 @@ class AuthService extends AbstractResourceService
                 $query->where('authSource', $authCredential->authSource)
                     ->where('username', $authCredential->username);
                 });
+            $auth = $query->first();
         } else {
+            /*
             $query = Auth::where(function ($query) use ($authCredential) {
                 $query->where('authSource', $authCredential->authSource)
                     ->where('authId', $authCredential->authId);
                 });
+                $criteria = [
+                    'var' => 'authId',
+                    'op'=> '=',
+                    'val' => $authCredential->authId
+                ];
+                */
+            $criteria = EcoCriteriaBuilder::conj(
+                    [EcoCriteriaBuilder::comparison('authSource', '=', $authCredential->authSource),
+                    EcoCriteriaBuilder::comparison('authId', '=', $authCredential->authId)]
+                );
+            $auth = $this->find($criteria);
         }
-        $auth = $query->first();
 
+        $accountModel = null;
         Log::info('Fetched Auth:' . print_r($auth, true));
         if (!$auth && $createIfNoMatch) {
             // @todo : make it transactional
@@ -64,7 +80,9 @@ class AuthService extends AbstractResourceService
             $auth->account = $accountModel;
         }
 
-        if (!$auth) {
+        if ($auth) {
+            $accountService->touchLastLogin($auth->account);
+        } else {
             Log::info('Signin failure');
         }
 
@@ -170,5 +188,5 @@ class AuthService extends AbstractResourceService
         return $decoded;
     }
 
-    
+
 }

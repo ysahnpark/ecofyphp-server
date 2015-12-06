@@ -5,8 +5,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatable
 {
-    //
+    // model configuration
+    protected $primaryKey = 'sid';
     public $timestamps = false;
+    /**
+     * The attributes that should be mutated to dates.
+     * @var array
+     */
+    protected $dates = ['createdAt', 'modifiedAt', 'disabledAt', 'lastLogin'];
 
     protected $guarded = ['managedBy', 'createdBy', 'createdAt', 'modifiedBy'
         , 'modifiedAt', 'modifiedCounter'
@@ -27,6 +33,16 @@ class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatabl
     public function auths()
     {
         return $this->hasMany('App\Modules\Auth\Auth', 'accountUuid', 'uuid');
+    }
+
+    // Registering delete event for cleaning up relations
+    protected static function boot() {
+        parent::boot();
+
+        static::deleting(function($account) { // before delete() method call this
+             $account->profile()->delete();
+             $account->auths()->delete();
+        });
     }
 
     // From Authenticatable

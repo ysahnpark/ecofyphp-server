@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Auth extends Model
 {
-    //
+    // model configuration
+    protected $primaryKey = 'sid';
     public $timestamps = false;
+    protected $dates = ['createdAt', 'modifiedAt', 'sessionTimestamp'];
 
     /**
      * The attributes excluded from the model's JSON form.

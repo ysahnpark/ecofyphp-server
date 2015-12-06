@@ -15,6 +15,19 @@ class AccountService extends AbstractResourceService
 		parent::__construct('\\App\\Modules\\Account\\Account', ['profile']);
 	}
 
+    /**
+     * Updates the lastLogin field to now
+     */
+	public function touchLastLogin($account)
+	{
+        $primaryKeyName = $this->primaryKeyName;
+        $pk = $account->$primaryKeyName;
+		$data = [
+			'lastLogin' => new \DateTime()
+		];
+		$this->update($pk, $data);
+	}
+
     // Resource Access Operations {{
     /**
      * Add

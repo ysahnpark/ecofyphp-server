@@ -13,10 +13,6 @@ use Ramsey\Uuid\Uuid;
 // Ecofy service
 use App\Modules\Auth\AuthServiceContract;
 
-// Models
-use App\Account;
-use App\Auth;
-use App\Profile;
 
 /**
  * For Socialite documentation

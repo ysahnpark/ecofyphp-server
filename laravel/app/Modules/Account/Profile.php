@@ -5,8 +5,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
-    //
+    // model configuration
+    protected $primaryKey = 'sid';
     public $timestamps = false;
+    protected $dates = ['createdAt', 'modifiedAt', 'dob'];
 
     protected $guarded = ['managedBy', 'createdBy', 'createdAt', 'modifiedBy'
         , 'modifiedAt', 'modifiedCounter'];

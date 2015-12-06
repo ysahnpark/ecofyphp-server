@@ -23,6 +23,7 @@ class CreateAccountsTable extends Migration
             $table->timestamp('modifiedAt')->nullable();
             $table->integer('modifiedCounter')->default(0);
 
+            $table->timestamp('disabledAt')->nullable();
             $table->string('kind', 12)->index();
             $table->string('status', 8);
             $table->string('displayName', 64);

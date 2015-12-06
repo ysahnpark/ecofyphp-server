@@ -30,7 +30,7 @@ abstract class AbstractResourceApiController extends BaseController
 	{
         $queryCtx = $this->queryContext($request);
 
-		$records = $this->service->query($queryCtx->criteria, $queryCtx);
+		$resources = $this->service->query($queryCtx->criteria, $queryCtx);
 
 		$result = null;
 		if ($queryCtx->envelop) {
@@ -40,10 +40,10 @@ abstract class AbstractResourceApiController extends BaseController
                 'offset' => $queryCtx->offset,
                 'limit' => $queryCtx->limit
 			];
-			$result['documents'] = $records;
+			$result['documents'] = $resources;
 			$result['totalHits'] = $this->service->count($queryCtx->criteria);
 		} else {
-			$result = $records;
+			$result = $resources;
 		}
 
 		return json_encode($result, JSON_PRETTY_PRINT);
@@ -67,14 +67,14 @@ abstract class AbstractResourceApiController extends BaseController
 	{
 		$data = \Input::all();
 
-		$createMethod = 'create' . $this->modelName;
+		$createMethod = 'add';
 
         try {
-        	$this->beforeRecordCreate($data);
-            $record = $this->service->$createMethod($data);
-            $this->afterRecordCreate($record);
+        	$this->beforeResourceCreate($data);
+            $resource = $this->service->$createMethod($data);
+            $this->afterResourceCreate($resource);
             return \Response::json(array(
-                'sid' => $record->sid),
+                'sid' => $resource->sid),
                 201
             );
         } catch (Exception $e) {
@@ -88,19 +88,19 @@ abstract class AbstractResourceApiController extends BaseController
 	/**
 	 * Return JSON representation of the specified resource.
 	 *
-	 * @param  int  $id
+	 * @param  mixed  $id
 	 * @return Response
 	 */
 	public function show($id)
 	{
-		$record = $this->service->findByPK($id);
-		return $record;
+		$resource = $this->service->findByPK($id);
+		return $resource;
 	}
 
 	/**
 	 * Showing the form is not supported in API.
 	 *
-	 * @param  int  $id
+	 * @param  mixed  $id
 	 * @return Response
 	 */
 	public function edit($id)
@@ -111,7 +111,7 @@ abstract class AbstractResourceApiController extends BaseController
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  int  $id
+	 * @param  mixed  $id
 	 * @return Response
 	 */
 	public function update($id)
@@ -121,11 +121,11 @@ abstract class AbstractResourceApiController extends BaseController
         $updateMethod = 'update';
 
         try {
-			//$this->beforeRecordUpdate($data);
-            $record = $this->service->$updateMethod($id, $data);
-            //$this->afterRecordUpdate($record);
+			$this->beforeResourceUpdate($data);
+            $resource = $this->service->$updateMethod($id, $data);
+            $this->afterResourceUpdate($resource);
             return \Response::json(array(
-                'sid' => $record->sid),
+                'sid' => $resource->sid),
                 200
             );
         } catch (Exception $e) {
@@ -148,7 +148,7 @@ abstract class AbstractResourceApiController extends BaseController
 		$result = $this->service->$deleteMethod($id);
 
 		if (!empty($result)) {
-			\Log::debug('Removed ' . $this->modelName . ': ' . $result->getName());
+			\Log::debug('Removed ' . $this->service->getModelFqn() . ': ' . $id);
 		} else {
 			\Log::info($this->modelName .' record ' . $id . ' not found');
 		}
@@ -182,5 +182,37 @@ abstract class AbstractResourceApiController extends BaseController
 
         return $queryCtx;
     }
+
+	/**
+	 * Method that is called before creating
+	 * @param array $data  - the input data from which the resource will be created
+	 */
+	protected function beforeResourceCreate(&$data) {
+		// Default do nothing
+	}
+
+	/**
+	 * Method that is called after resource is created
+	 * @param object $resource - the resource that was created
+	 */
+	protected function afterResourceCreate(&$resource) {
+		// Default do nothing
+	}
+
+	/**
+	 * Method that is called before creating
+	 * @param array $data - the input data from which the record will be updated
+	 */
+	protected function beforeResourceUpdate(&$data) {
+		// Default do nothing
+	}
+
+	/**
+	 * Method that is called after $resource was updated
+	 * @param object $resource - the $resource that was updated
+	 */
+	protected function afterResourceUpdate(&$resource) {
+		// Default do nothing
+	}
 
 }

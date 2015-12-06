@@ -1,6 +1,9 @@
 
 - DB seeding with host root
-- Account Edit/delete
-- EcoQL to Eloquent
+- Account Create/Edit
+- local signup
 - local signin
-- AbstractResourceService
+- CSFR
+- Roles
+- Role & Permission management UI
+- dates (lastLogin)

@@ -26,6 +26,15 @@ abstract class AbstractResourceService
         $this->eagerLoadRelations = $eagerLoadRelations;
     }
 
+    /**
+     * Gets the model's FQN
+     * @return string
+     */
+    public function getModelFqn()
+    {
+        return $this->modelFqn;
+    }
+
     // Resource Access Operations {{
     /**
      * Add
@@ -128,15 +137,15 @@ abstract class AbstractResourceService
      * Update
      *
      * @param mixed  $pk - The primary key of the resource to find
-     * @param object  $resource  - The resource (record) to update
+     * @param array  $data  - The set of fields to update
      * @param object  $options  - Any options for update operation
      * @return Model  - Upon success the model returned
      */
-    public function update($pk, $resource, $options = null)
+    public function update($pk, $data, $options = null)
     {
         $criteria = $this->criteriaByPk($pk);
         $query = $this->buildQuery($criteria);
-        return $query->update($resource->toArray());
+        return $query->update($data);
     }
 
     /**
@@ -149,7 +158,7 @@ abstract class AbstractResourceService
     public function remove($criteria, $options = null)
     {
         $query = $this->buildQuery($criteria);
-        $deletedRows = $query->delete();
+        $deletedRows = $query->first()->delete();
         return $deletedRows;
     }
 
@@ -178,7 +187,7 @@ abstract class AbstractResourceService
     {
         return [
             'var' => $this->primaryKeyName,
-            'op' => '=',
+            'op'  => '=',
             'val' => $pk
         ];
     }

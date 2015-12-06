@@ -26,6 +26,27 @@ class AuthApiController extends Controller
         return json_encode($account);
     }
 
+    /**
+     * Signs in a user with local authentication
+     */
+    public function signup(AuthServiceContract $authService)
+    {
+        $payload = \Input::json();
+        $payload->username;
+        $payload->password;
+
+        $authCredentials = new Auth();
+        $authCredentials->authSource = 'local';
+        $authCredentials->authId = '-NONE-'; // only applicable for social network
+        $authCredentials->username = $payload->username;
+        $authCredentials->password = $payload->password;
+
+        $authService->authenticate();
+    }
+
+    /**
+     * Signs in a user with local authentication
+     */
     public function signin(AuthServiceContract $authService)
     {
         $payload = \Input::json();
