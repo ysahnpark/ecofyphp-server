@@ -5,13 +5,29 @@ class ObjectAccessor
 {
     public static function get($obj, $propertyPath, $default = null)
     {
-        if (is_array($obj)) {
-            return ObjectAccessor::getFromArr($obj, $propertyPath, $default);
-        } else {
-            return ObjectAccessor::getFromObject($obj, $propertyPath, $default);
-        }
+        return ObjectAccessor::getFromMixed($obj, $propertyPath, $default);
     }
 
+    public static function getFromMixed($obj, $propertyPath, $default = null)
+    {
+        $propPathArr = explode('.', $propertyPath);
+        $currNode = $obj;
+        foreach($propPathArr as $prop) {
+            if (is_object($currNode) && property_exists($currNode, $prop)) {
+                $currNode = $currNode->$prop;
+            } else if (is_array($currNode) && array_key_exists($prop, $currNode)) {
+                $currNode = $currNode[$prop];
+            } else {
+                $currNode = $default;
+                break;
+            }
+        }
+        return $currNode;
+    }
+
+    /**
+     * deprecated, use the method above
+     */
     public static function getFromObject($obj, $propertyPath, $default = null)
     {
         $propPathArr = explode('.', $propertyPath);
@@ -27,19 +43,4 @@ class ObjectAccessor
         return $currNode;
     }
 
-    // @todo : merge two, so combination of object and arry can be traversed
-    public static function getFromArr($obj, $propertyPath, $default = null)
-    {
-        $propPathArr = explode('.', $propertyPath);
-        $currNode = $obj;
-        foreach($propPathArr as $prop) {
-            if (array_key_exists($prop, $currNode)) {
-                $currNode = $currNode[$prop];
-            } else {
-                $currNode = $default;
-                break;
-            }
-        }
-        return $currNode;
-    }
 }

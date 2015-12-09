@@ -7,23 +7,24 @@ use \Ramsey\Uuid\Uuid;
 
 abstract class AbstractResourceService
 {
+    /* Ecofy Query Builder */
     protected $queryBuilder;
     protected $modelFqn;
     protected $primaryKeyName = 'uuid';
 
-    protected $eagerLoadRelations = null;
+    protected $relations = null;
 
     /**
      * @param string $modelFqn  - Fully qualified name of the model
-     * @param array $eagerLoadRelations -  Array of name of relations for the eager loading
+     * @param array $relations -  Array of name of relations for the eager loading
      */
-    public function __construct($modelFqn, $eagerLoadRelations = null)
+    public function __construct($modelFqn, $relations = null)
     {
         $this->queryBuilder = new QueryBuilderEloquent();
         // @todo check that the modelFqn starts with '\'
     	$this->modelFqn = $modelFqn;
 
-        $this->eagerLoadRelations = $eagerLoadRelations;
+        $this->relations = $relations;
     }
 
     /**
@@ -33,6 +34,18 @@ abstract class AbstractResourceService
     public function getModelFqn()
     {
         return $this->modelFqn;
+    }
+
+    /**
+     * Sanitized the data
+     */
+    public function sanitizeData($data)
+    {
+        // The Model::fill checks for fillable and guarded fields
+        $modelClassName = $this->modelFqn;
+        $model = new $modelClassName();
+        $model->fill($data);
+        return $model->toArray();
     }
 
     // Resource Access Operations {{
@@ -143,9 +156,17 @@ abstract class AbstractResourceService
      */
     public function update($pk, $data, $options = null)
     {
+        /* @todo - check the relation and do automatic update of nested objects
+        if (!empty($this->relations)) {
+        }
+        */
+        // @todo - Some cases sanitization should be skipped
+        //         E.g. when updating lastLogin
+        $setData = $this->sanitizeData($data);
+
         $criteria = $this->criteriaByPk($pk);
         $query = $this->buildQuery($criteria);
-        return $query->update($data);
+        return $query->update($setData);
     }
 
     /**
@@ -192,17 +213,25 @@ abstract class AbstractResourceService
         ];
     }
 
-    public function buildQuery($criteria)
+    /**
+     * Creates an Query from EcoCriteria
+     *
+     * @param EcoCriteria $criteria
+     * @param string $modelFql  - The model's fully qualified name,
+     *      proiving default (null) makes use of the default model
+     */
+    protected function buildQuery($criteria, $modelFqn = null)
     {
-        $modelClassName = $this->modelFqn;
+        $modelClassName = ($modelFqn == null) ? $this->modelFqn: $modelFqn;
         if (empty($criteria)) $criteria = array();
-        $queryBuilder = new QueryBuilderEloquent();
+
         $modelQuery = $modelClassName::query();
-        if ( !empty($this->eagerLoadRelations)) {
-            $modelQuery->with($this->eagerLoadRelations);
+        if ( !empty($this->relations)) {
+            $modelQuery->with($this->relations);
         }
         $query = $modelQuery->getQuery();
 
+        $queryBuilder = new QueryBuilderEloquent();
         $queryBuilder->buildQuery($criteria, $query);
 
         return $modelQuery;

@@ -1,5 +1,6 @@
+var pathBase = '/pages';
 var app = angular.module('mainApp');
-app.controller('SigninController', ['$window', '$location', 'AuthService', 
+app.controller('SigninController', ['$window', '$location', 'AuthService',
     function($window, $location, AuthService)
 {
 
@@ -22,7 +23,7 @@ app.controller('SigninController', ['$window', '$location', 'AuthService',
             // authenticated
             if (authenticated) {
                 self.errorMessage = null;
-                self.redir( '/public/admin.html' );
+                self.redir( pathBase + '/admin.html' );
             } else {
                 self.errorMessage = 'Invalid username or password';
             }
@@ -30,7 +31,7 @@ app.controller('SigninController', ['$window', '$location', 'AuthService',
         .catch(function(error) {
             if (error instanceof Error) {
                 self.errorMessage = error.toString();
-            } 
+            }
             self.errorMessage = JSON.stringify(error, null, 2);
         });
         //$location.path( path );
@@ -38,7 +39,7 @@ app.controller('SigninController', ['$window', '$location', 'AuthService',
 
 }]);
 
-app.controller('SignupController', ['$window', '$location', 'AuthService', 
+app.controller('SignupController', ['$window', '$location', 'AuthService',
     function($window, $location, AuthService)
 {
 
@@ -59,13 +60,13 @@ app.controller('SignupController', ['$window', '$location', 'AuthService',
         days: [],
         months: [],
     };
-    
+
     loadReferencials();
 
     function loadReferencials()
     {
         self.referencial.days = new Array(31);
-        
+
         self.referencial.months = [
             {value: '1', name:'Januray'},
             {value: '2', name:'February'},
@@ -104,7 +105,7 @@ app.controller('SignupController', ['$window', '$location', 'AuthService',
         .then(function(account) {
             if (account) {
                 self.errorMessage = null;
-                self.redir( '/public/admin.html' );
+                self.redir( pathBase + '/admin.html' );
             } else {
                 self.errorMessage = 'Invalid username or password';
             }
@@ -112,7 +113,7 @@ app.controller('SignupController', ['$window', '$location', 'AuthService',
         .catch(function(error) {
             if (error instanceof Error) {
                 self.errorMessage = error.toString();
-            } 
+            }
             self.errorMessage = JSON.stringify(error, null, 2);
         });
     };

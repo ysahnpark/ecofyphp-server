@@ -2,11 +2,11 @@
 
   <md-toolbar class="md-primary md-hue-2">
     <div class="md-toolbar-tools">
-      <h2 class="md-flex"><a href="#/">Accounts</a></h2>  <span style="margin: 1em">></span> 
+      <h2 class="md-flex"><a href="#/">Accounts</a></h2>  <span style="margin: 1em">></span>
       <span ng-bind="accountCtrl.account.displayName" />
     </div>
   </md-toolbar>
-  
+
   <md-content class="md-padding" layout="row" layout-align="center center" ng-cloak>
     <form name="accountForm" ng-submit="accountCtrl.submit()">
       <div layout layout-sm="column">
@@ -49,16 +49,16 @@
       </md-input-container>
       <md-input-container flex>
         <label>Address</label>
-        <input ng-model="accountCtrl.account.profile.address.street">
+        <input ng-model="accountCtrl.account.profile.address_street">
       </md-input-container>
       <div layout layout-sm="column">
         <md-input-container flex>
           <label>City</label>
-          <input ng-model="accountCtrl.account.profile.address.city">
+          <input ng-model="accountCtrl.account.profile.address_city">
         </md-input-container>
         <md-input-container flex>
           <label>State</label>
-          <md-select ng-model="accountCtrl.account.profile.address.stateCode">
+          <md-select ng-model="accountCtrl.account.profile.address_stateCode">
             <md-option ng-repeat="state in states" value="{{state.abbrev}}">
               {{state.abbrev}}
             </md-option>
@@ -66,7 +66,7 @@
         </md-input-container>
         <md-input-container flex>
           <label>Postal Code</label>
-          <input name="postalCode" ng-model="accountCtrl.account.profile.address.postalCode" placeholder="12345"
+          <input name="postalCode" ng-model="accountCtrl.account.profile.address_postalCode" placeholder="12345"
                  required ng-pattern="/^[0-9]{5}$/" md-maxlength="5">
           <div ng-messages="userForm.postalCode.$error" role="alert" multiple>
             <div ng-message="required" class="my-message">You must supply a postal code.</div>
@@ -87,5 +87,5 @@
       <md-button class="md-raised" ng-if="!accountCtrl.account">Sign up</md-button>
     </form>
   </md-content>
-  
+
 </div>

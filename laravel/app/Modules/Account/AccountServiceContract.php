@@ -4,6 +4,14 @@ namespace App\Modules\Account;
 
 interface AccountServiceContract
 {
+    /**
+     * find by email
+     *
+     * @param string  $email - Email to search for
+     * @return Model  - Upon success, return the found model
+     */
+    public function findByEmail($email);
+
     // Resource Access Operations {{
 
     /**

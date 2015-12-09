@@ -25,7 +25,7 @@ class EcofySupportQueryBuilderEloquentTest extends TestCase
         $query = $qbuilder->buildQuery($criteria->text, $query);
         $sql = $query->toSql();
 
-        print_r($sql);
+        //print_r($sql);
 
         //$this->assertTrue(false);
     }
@@ -41,7 +41,7 @@ class EcofySupportQueryBuilderEloquentTest extends TestCase
         $query = $qbuilder->buildQuery($criteria->text, $query);
         $sql = $query->toSql();
 
-        print_r($sql);
+        //print_r($sql);
 
         //$this->assertTrue(false);
     }
@@ -57,7 +57,7 @@ class EcofySupportQueryBuilderEloquentTest extends TestCase
         $query = $qbuilder->buildQuery($criteria->text, $query);
         $sql = $query->toSql();
 
-        print_r($sql);
+        //print_r($sql);
 
         //$this->assertTrue(false);
     }

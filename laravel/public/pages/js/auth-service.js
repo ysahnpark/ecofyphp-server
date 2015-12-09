@@ -1,9 +1,9 @@
 var accountModule = angular.module('account', ['ngResource']);
 
 /**
- * Service that provides Authentication facility  
+ * Service that provides Authentication facility
  */
-accountModule.service('AuthService', ['$q', '$http', '$cookies', 
+accountModule.service('AuthService', ['$q', '$http', '$cookies',
     function($q, $http, $cookies)
 {
     var self = this;
@@ -78,12 +78,12 @@ accountModule.service('AuthService', ['$q', '$http', '$cookies',
         return $http.post(basePath + '/signup', account)
         .then(function(response) {
             if (response.data) {
-                self.setSession(response.data.token, response.data.auth.accountObject);
+                self.setSession(response.data.token, response.data.auth.account);
                 return self.getAccount();
             } else {
                 // Login failed (bad id or password)
                 return null;
-            } 
+            }
         })
         .catch(function(error) {
             // Error wrapped by $http containing config, data, status, statusMessage, etc.
@@ -100,12 +100,12 @@ accountModule.service('AuthService', ['$q', '$http', '$cookies',
         return $http.post(basePath + '/signin', credentials)
         .then(function(response) {
             if (response.data) {
-                self.setSession(response.data.token, response.data.auth.accountObject);
+                self.setSession(response.data.token, response.data.auth.account);
                 return self.getAccount();
             } else {
                 // Login failed (bad id or password)
                 return null;
-            } 
+            }
         })
         .catch(function(error) {
             // Error wrapped by $http containing config, data, status, statusMessage, etc.

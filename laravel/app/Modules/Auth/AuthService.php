@@ -2,8 +2,8 @@
 
 namespace App\Modules\Auth;
 
-use DB;
 use Log;
+use DB;
 
 use \Ramsey\Uuid\Uuid;
 use \Firebase\JWT\JWT;
@@ -22,6 +22,8 @@ use App\Modules\Auth\AuthServiceContract;
 class AuthService extends AbstractResourceService
     implements AuthServiceContract
 {
+    protected $accountService = null;
+
     public function __construct() {
 		parent::__construct('\\App\\Modules\\Auth\\Auth',['account']);
 	}
@@ -31,62 +33,90 @@ class AuthService extends AbstractResourceService
         return 'AuthService';
     }
 
-    public function authenticate($oauthUser, $createIfNoMatch)
+    public function getAccountService()
     {
-        $accountService = \App::make('App\Modules\Account\AccountServiceContract');
+        if ( $this->accountService == null) {
+            $this->accountService = \App::make('App\Modules\Account\AccountServiceContract');
+        }
+        return $this->accountService;
+    }
 
-        $authCredential = $this->buildAuthModel($oauthUser);
-        Log::info('Parsed $authCredential:' . print_r($authCredential, true));
-
-        $query = null;
-        if ($authCredential->authSource == 'local') {
-            $query = Auth::where(function ($query) use ($authCredential) {
-                $query->where('authSource', $authCredential->authSource)
-                    ->where('username', $authCredential->username);
-                });
-            $auth = $query->first();
-        } else {
-            /*
-            $query = Auth::where(function ($query) use ($authCredential) {
-                $query->where('authSource', $authCredential->authSource)
-                    ->where('authId', $authCredential->authId);
-                });
-                $criteria = [
-                    'var' => 'authId',
-                    'op'=> '=',
-                    'val' => $authCredential->authId
-                ];
-                */
+    /**
+     * authenticate
+     * @param Model\Auth $auth
+     */
+    public function authenticate($auth)
+    {
+        Log::info('Parsed $auth:' . print_r($auth, true));
+        if ($auth->authSource == 'local') {
             $criteria = EcoCriteriaBuilder::conj(
-                    [EcoCriteriaBuilder::comparison('authSource', '=', $authCredential->authSource),
-                    EcoCriteriaBuilder::comparison('authId', '=', $authCredential->authId)]
+                    [EcoCriteriaBuilder::comparison('authSource', '=', $auth->authSource),
+                    EcoCriteriaBuilder::comparison('username', '=', $auth->username)]
                 );
-            $auth = $this->find($criteria);
-        }
-
-        $accountModel = null;
-        Log::info('Fetched Auth:' . print_r($auth, true));
-        if (!$auth && $createIfNoMatch) {
-            // @todo : make it transactional
-            // Insert account and auth records into the database
-            $accountModel = $this->buildAccountModel($oauthUser);
-            Log::info('Parsed $accountModel:' . print_r($accountModel, true));
-
-            $profileModel = $this->buildProfileModel($oauthUser);
-            Log::info('Parsed $profileModel:' . print_r($profileModel, true));
-
-            $this->createAccount($accountModel, $profileModel, $authCredential);
-            $auth = $authCredential;
-            $auth->account = $accountModel;
-        }
-
-        if ($auth) {
-            $accountService->touchLastLogin($auth->account);
         } else {
-            Log::info('Signin failure');
+            $criteria = EcoCriteriaBuilder::conj(
+                    [EcoCriteriaBuilder::comparison('authSource', '=', $auth->authSource),
+                    EcoCriteriaBuilder::comparison('authId', '=', $auth->authId)]
+                );
+        }
+        $auth = $this->find($criteria);
+
+        $retval = $this->login($auth);
+
+        return $retval;
+    }
+
+    /**
+     * Create account, profile and auth within transaction
+     *
+     * @param array $modesl - Array with account, profile and auth models
+     * @return
+     */
+    public function createAccountAndAuth($models)
+    {
+        $accountModel = $models['account'];
+        $profileModel = $models['profile'];
+        $authCredential = $models['auth'];
+
+        // Check if account already exists with same account->primaryEmail
+        $matchingAccount = $this->getAccountService()->findByEmail($accountModel->primaryEmail);
+        if (!empty($matchingAccount)) {
+            $accountModel = $matchingAccount;
         }
 
-        // @todo: Update account's lastLogin date
+        DB::transaction(function () use($accountModel, $profileModel, $authCredential) {
+            if (empty($accountModel->uuid))
+                $accountModel->uuid = Uuid::uuid4();
+            $accountModel->save();
+            $profileModel->accountUuid = $accountModel->uuid;
+
+            if (empty($profileModel->uuid))
+                $profileModel->uuid = Uuid::uuid4();
+            $profileModel->save();
+            $authCredential->accountUuid = $accountModel->uuid;
+
+            if (empty($authCredential->uuid))
+                $authCredential->uuid = Uuid::uuid4();
+            $authCredential->save();
+            $authCredential->account = $accountModel;
+        });
+        return $authCredential;
+    }
+
+    /**
+     * Logs in the authenticated user
+     * @param Model\Auth $auth the authenticated user with account property set
+     *
+     * @return array  - Array with ['auth' => auth, 'token' => <JWT token>]
+     */
+    public function login($auth)
+    {
+        if (empty($auth)) {
+            Log::info('Login failure');
+            return FALSE;
+        }
+
+        $this->getAccountService()->touchLastLogin($auth->account);
 
         $retval = [
             'auth' => $auth,
@@ -94,72 +124,9 @@ class AuthService extends AbstractResourceService
             // @see https://scotch.io/tutorials/token-based-authentication-for-angularjs-and-laravel-apps
             'token' => $this->encodeToken($auth->account),
         ];
-
-        Log::info('AuthAndToken:' . print_r($retval, true));
+        Log::info('Loggedin (AuthAndToken):' . print_r($retval, true));
 
         return $retval;
-    }
-
-    /**
-     * Create account, profile and auth within transaction
-     */
-    public function createAccount($accountModel, $profileModel, $authCredential)
-    {
-        DB::transaction(function () use($accountModel, $profileModel, $authCredential) {
-            $accountModel->save();
-            $profileModel->accountUuid = $accountModel->uuid;
-            $profileModel->save();
-            $authCredential->accountUuid = $accountModel->uuid;
-            $authCredential->save();
-        });
-
-    }
-
-    // @todo: factor out to strategy
-    function buildAuthModel($oauthUser)
-    {
-        $authModel = new Auth();
-        $authModel->uuid = Uuid::uuid4();
-        $authModel->authSource = 'google';
-        $authModel->authId = $oauthUser->id;
-
-        $authModel->authCredentialsRaw = json_encode($oauthUser->user);
-        $authModel->status = 1;
-        $authModel->rememberToken = $oauthUser->token;
-        $authModel->security_password = null;
-        $authModel->security_activationCode = null;
-        $authModel->security_securityQuestion = null;
-        $authModel->security_securityAnswer = null;
-
-        return $authModel;
-    }
-
-    function buildAccountModel($oauthUser)
-    {
-        $accountModel = new Account();
-        $accountModel->uuid = Uuid::uuid4();
-
-        $accountModel->kind = 'basic';
-        // $accountModel->roles = null;
-        $accountModel->status = 'registered';
-        $accountModel->displayName = $oauthUser->user['displayName'];
-        $accountModel->primaryEmail = $oauthUser->email;
-        $accountModel->imageUrl = $oauthUser->user['image']['url'];
-
-        return $accountModel;
-    }
-
-    function buildProfileModel($oauthUser)
-    {
-        $profileModel = new Profile();
-        $profileModel->uuid = Uuid::uuid4();
-        $profileModel->familyName = $oauthUser->user['name']['familyName'];
-        $profileModel->givenName = $oauthUser->user['name']['givenName'];
-        $profileModel->highlight = ObjectAccessor::get($oauthUser->user, 'braggingRights', null);
-        $profileModel->gender = ObjectAccessor::get($oauthUser->user, 'gender', null);
-        $profileModel->language = $oauthUser->user['language'];
-
-        return $profileModel;
     }
 
     /**

@@ -125,7 +125,7 @@ abstract class AbstractResourceApiController extends BaseController
             $resource = $this->service->$updateMethod($id, $data);
             $this->afterResourceUpdate($resource);
             return \Response::json(array(
-                'sid' => $resource->sid),
+                'id' => $id),
                 200
             );
         } catch (Exception $e) {

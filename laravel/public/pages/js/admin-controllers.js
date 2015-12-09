@@ -1,6 +1,6 @@
 var app = angular.module('adminApp');
 app.controller('AccountController', ['$cookies', '$routeParams', '$location', 'AuthService', 'AccountResource'
-    , function($cookies, $routeParams, $location, AuthService, AccountResource) 
+    , function($cookies, $routeParams, $location, AuthService, AccountResource)
 {
     var self = this;
     self.accounts = [];
@@ -65,9 +65,11 @@ app.controller('AccountController', ['$cookies', '$routeParams', '$location', 'A
     this.submit = function() {
 
         if (self.account.uuid) {
+            // Update existing
             delete self.account._id;
             AccountResource.update({id: self.account.uuid}, self.account);
         } else {
+            // Create new
             var newAccount = new AccountResource(self.account);
             newAccount.kind = 'normal';
             newAccount.auth = {

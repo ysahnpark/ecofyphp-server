@@ -88,4 +88,27 @@ class EcofySupportObjectAccessorTest extends TestCase
 
         $this->assertTrue($foo == 'hello');
     }
+
+    // Test mixed
+    public function testMixedGetNested()
+    {
+        $obj = [];
+        $obj['foo'] = new stdClass();
+        $obj['foo']->bar = 'bar';
+        $result = ObjectAccessor::getFromMixed($obj, 'foo.bar');
+
+        $this->assertTrue($result == 'bar');
+    }
+
+    public function testMixedGetNested2()
+    {
+        $obj = new stdClass();
+        $obj->foo = [];
+        $obj->foo['bar'] = 'bar';
+        $result = ObjectAccessor::getFromMixed($obj, 'foo.bar');
+
+        $this->assertTrue($result == 'bar');
+    }
+
+
 }

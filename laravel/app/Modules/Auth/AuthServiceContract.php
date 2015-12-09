@@ -16,7 +16,7 @@ interface AuthServiceContract
      * @param bool  $createIfNoMatch  - Create an account if no match was found
      * @return object  - Upon success object: [auth, token] is returned
      */
-    public function authenticate($oauthUser, $createIfNoMatch);
+    public function authenticate($auth);
 
     /**
      * encode JWT token
@@ -104,5 +104,5 @@ interface AuthServiceContract
      */
     public function removeByPK($pk, $options);
 
-    // }} Resource Access Operations 
+    // }} Resource Access Operations
 }

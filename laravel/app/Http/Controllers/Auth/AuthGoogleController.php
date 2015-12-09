@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use DB;
 use Log;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Socialite;
 
-use Ramsey\Uuid\Uuid;
+use App\Ecofy\Support\ObjectAccessor;
+use App\Modules\Auth\Auth;
+use App\Modules\Account\Account;
+use App\Modules\Account\Profile;
+
 
 // Ecofy service
 use App\Modules\Auth\AuthServiceContract;
@@ -48,7 +51,7 @@ class AuthGoogleController extends Controller
         // stateless() is requires so that the Socialite does not try to match
         // with nonce. This is requires becase we are sending custom parameter
         $authDriver->stateless();
-        $user = $authDriver->user();
+        $oauthUser = $authDriver->user();
         $authState = $request->input('state');
 
         // Obtain the original query string as state
@@ -62,8 +65,27 @@ class AuthGoogleController extends Controller
         */
         //Log::info($userJson);
 
+        $authCredential = $this->buildAuthModel($oauthUser);
+
         // @todo: externalize to a AuthService
-        $authAndToken = $authService->authenticate($user,  true);
+        $authAndToken = $authService->authenticate($authCredential);
+        Log::info('Fetched Auth:' . print_r($authCredential, true));
+
+        if ($authAndToken == FALSE) {
+
+            // @todo : make it transactional
+            $models = [];
+            $models['auth'] = $authCredential;
+
+            $models['account'] = $this->buildAccountModel($oauthUser);
+            Log::info('Parsed $accountModel:' . print_r($models['account'], true));
+
+            $models['profile'] = $this->buildProfileModel($oauthUser);
+            Log::info('Parsed $profileModel:' . print_r($models['profile'], true));
+
+            $auth = $authService->createAccountAndAuth($models);
+            $authAndToken = $authService->login($auth);
+        }
 
         if (array_key_exists('redir_url', $state)) {
             // Cookie params:
@@ -76,6 +98,52 @@ class AuthGoogleController extends Controller
                 ->withCookie('ecofy_token', $authAndToken['token']
                     , $minutes , $path, $domain, $secure, $httpOnly);
         }
+    }
+
+
+
+    // @todo: factor out to strategy
+    function buildAuthModel($oauthUser)
+    {
+        $authModel = new Auth();
+        $authModel->authSource = 'google';
+        $authModel->authId = $oauthUser->id;
+
+        $authModel->authCredentialsRaw = json_encode($oauthUser->user);
+        $authModel->status = 1;
+        $authModel->rememberToken = $oauthUser->token;
+        $authModel->security_password = null;
+        $authModel->security_activationCode = null;
+        $authModel->security_securityQuestion = null;
+        $authModel->security_securityAnswer = null;
+
+        return $authModel;
+    }
+
+    function buildAccountModel($oauthUser)
+    {
+        $accountModel = new Account();
+
+        $accountModel->kind = 'basic';
+        // $accountModel->roles = null;
+        $accountModel->status = 'registered';
+        $accountModel->displayName = $oauthUser->user['displayName'];
+        $accountModel->primaryEmail = $oauthUser->email;
+        $accountModel->imageUrl = $oauthUser->user['image']['url'];
+
+        return $accountModel;
+    }
+
+    function buildProfileModel($oauthUser)
+    {
+        $profileModel = new Profile();
+        $profileModel->familyName = $oauthUser->user['name']['familyName'];
+        $profileModel->givenName = $oauthUser->user['name']['givenName'];
+        $profileModel->highlight = ObjectAccessor::get($oauthUser->user, 'braggingRights', null);
+        $profileModel->gender = ObjectAccessor::get($oauthUser->user, 'gender', null);
+        $profileModel->language = $oauthUser->user['language'];
+
+        return $profileModel;
     }
 
     /**

@@ -1,9 +1,6 @@
 
 - DB seeding with host root
-- Account Create/Edit
-- local signup
 - local signin
 - CSFR
 - Roles
 - Role & Permission management UI
-- dates (lastLogin)
