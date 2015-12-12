@@ -46,4 +46,15 @@ return [
         'redirect' => 'http://localhost:8000/auth/google/callback',
     ],
 
+    /**
+     * Socialite's Google+ auth driver.
+     * The data here is using EcoLearnia-poc (ecoloearnia@gmail.com account)
+     * To configure, go to https://console.developers.google.com
+     */
+    'facebook' => [
+        'client_id' => '454433434750843',
+        'client_secret' => getenv('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => 'http://localhost:8000/auth/facebook/callback',
+    ],
+
 ];

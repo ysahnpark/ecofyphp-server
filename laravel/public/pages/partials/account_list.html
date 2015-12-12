@@ -37,7 +37,7 @@
       </thead>
       <tbody>
         <tr class="ng-cloack" ng-repeat="account in accountCtrl.accounts">
-            <td><img ng-show="account.imageUrl != undefined" src={{account.imageUrl}} /></td>
+            <td><img ng-show="account.imageUrl != undefined" src={{account.imageUrl}} width="50px" /></td>
             <td><a href="#/account/{{account.uuid}}" ><span ng-bind="account.displayName" /></a></td>
             <td>{{account.primaryEmail}}</td>
             <td>{{account.status}}</td>

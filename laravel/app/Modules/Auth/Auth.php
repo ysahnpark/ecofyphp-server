@@ -9,7 +9,7 @@ class Auth extends Model
     // model configuration
     protected $primaryKey = 'sid';
     public $timestamps = false;
-    protected $dates = ['createdAt', 'modifiedAt', 'sessionTimestamp'];
+    protected $dates = ['sid', 'createdAt', 'modifiedAt', 'sessionTimestamp'];
 
     /**
      * The attributes excluded from the model's JSON form.

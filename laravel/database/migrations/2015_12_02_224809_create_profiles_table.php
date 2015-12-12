@@ -35,6 +35,7 @@ class CreateProfilesTable extends Migration
             $table->string('mobile', 16)->nullable();
             $table->string('timezone', 16)->nullable();
             $table->string('permalink', 125)->nullable();
+            //$table->string('locale', 8)->nullable();
 
             $table->string('language', 8)->nullable();
 

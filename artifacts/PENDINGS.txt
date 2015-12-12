@@ -1,6 +1,5 @@
 
 - DB seeding with host root
-- local signin
 - CSFR
 - Roles
 - Role & Permission management UI

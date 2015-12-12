@@ -18,6 +18,10 @@ Route::get('/', function () {
 Route::get('auth/google', 'Auth\AuthGoogleController@redirectToProvider');
 Route::get('auth/google/callback', 'Auth\AuthGoogleController@handleProviderCallback');
 
+Route::get('auth/facebook', 'Auth\AuthFacebookController@redirectToProvider');
+Route::get('auth/facebook/callback', 'Auth\AuthFacebookController@handleProviderCallback');
+
+
 // You can also do: Route::group(['prefix' => 'api'], function() {}
 
 Route::group(['middleware' => 'ecofyauth'], function () {
