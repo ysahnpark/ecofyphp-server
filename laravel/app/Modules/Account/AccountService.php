@@ -1,6 +1,7 @@
 <?php
 namespace App\Modules\Account;
 
+use DateTime;
 use DB;
 use Log;
 
@@ -16,8 +17,24 @@ class AccountService extends AbstractResourceService
     implements AccountServiceContract
 {
     public function __construct() {
-		parent::__construct('\\App\\Modules\\Account\\Account', ['profile']);
+		parent::__construct('\\App\\Modules\\Account\\Account', ['profile', 'auths']);
 	}
+
+    public function newAccount($array)
+    {
+        $model = new Account($array);
+        $model->createdAt = new DateTime();
+
+        return $model;
+    }
+
+    public function newProfile($array)
+    {
+        $model = new Profile($array);
+        $model->createdAt = new DateTime();
+
+        return $model;
+    }
 
     /**
      * Sanitized the Account data

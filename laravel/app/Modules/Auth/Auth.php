@@ -9,14 +9,14 @@ class Auth extends Model
     // model configuration
     protected $primaryKey = 'sid';
     public $timestamps = false;
-    protected $dates = ['sid', 'createdAt', 'modifiedAt', 'sessionTimestamp'];
+    protected $dates = ['createdAt', 'modifiedAt', 'sessionTimestamp'];
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = ['security_password', 'security_activationCode', 'security_securityAnswer'];
+    protected $hidden = ['authCredentialsRaw' ,'security_password', 'security_activationCode', 'security_securityAnswer'];
 
     protected $guarded = ['managedBy', 'createdBy', 'createdAt', 'modifiedBy'
         , 'modifiedAt', 'modifiedCounter'

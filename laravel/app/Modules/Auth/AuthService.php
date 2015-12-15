@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth;
 
+use DateTime;
 use Log;
 use DB;
 
@@ -39,6 +40,18 @@ class AuthService extends AbstractResourceService
             $this->accountService = \App::make('App\Modules\Account\AccountServiceContract');
         }
         return $this->accountService;
+    }
+
+    /**
+     * Returns a new instance of account model
+     */
+    public function newAuth($array)
+    {
+        $model = new Auth($array);
+        $model->createdAt = new DateTime();
+        $model->status = 1;
+
+        return $model;
     }
 
     /**
