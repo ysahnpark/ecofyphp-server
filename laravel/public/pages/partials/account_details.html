@@ -42,3 +42,8 @@
 <hr/>
 
 Authentication methods
+<ul>
+    <li ng-repeat="auth in accountCtrl.account.auths">
+        {{ auth.authSource }} ({{ auth.createdAt }})
+    </li>
+</ul>

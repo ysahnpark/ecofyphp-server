@@ -21,6 +21,9 @@ Route::get('auth/google/callback', 'Auth\AuthGoogleController@handleProviderCall
 Route::get('auth/facebook', 'Auth\AuthFacebookController@redirectToProvider');
 Route::get('auth/facebook/callback', 'Auth\AuthFacebookController@handleProviderCallback');
 
+Route::get('auth/linkedin', 'Auth\AuthLinkedInController@redirectToProvider');
+Route::get('auth/linkedin/callback', 'Auth\AuthLinkedInController@handleProviderCallback');
+
 
 // You can also do: Route::group(['prefix' => 'api'], function() {}
 

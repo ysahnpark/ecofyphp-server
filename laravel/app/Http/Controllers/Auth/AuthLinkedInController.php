@@ -13,8 +13,6 @@ use App\Modules\Auth\Auth;
 use App\Modules\Account\Account;
 use App\Modules\Account\Profile;
 
-// Not really required
-//use Facebook\Facebook;
 
 // Ecofy service
 use App\Modules\Auth\AuthServiceContract;
@@ -24,19 +22,13 @@ use App\Modules\Auth\AuthServiceContract;
  * For Socialite documentation
  * @see: https://github.com/laravel/socialite
  */
-class AuthFacebookController extends AbstractAuthSocialController
+class AuthLinkedInController extends AbstractAuthSocialController
 {
-    public static $FIELDS = ['name', 'email', 'gender', 'verified', 'about'
-        , 'first_name', 'last_name', 'middle_name'
-        , 'bio', 'birthday', 'education', 'interested_in', 'languages'
-        , 'location', 'locale', 'name_format', 'timezone', 'updated_time'
-        , 'website', 'work', 'cover'];
-
     public function __construct() {
-		parent::__construct('facebook', self::$FIELDS);
+		parent::__construct('linkedin', null);
 	}
 
-    function buildAuthModel($authService, $oauthUser)
+    public function buildAuthModel($authService, $oauthUser)
     {
         $authData['authSource'] = $this->driver;
         $authData['authId'] = $oauthUser->id;
@@ -51,29 +43,29 @@ class AuthFacebookController extends AbstractAuthSocialController
         return $authService->newAuth($authData);
     }
 
-    function buildAccountModel($authService, $oauthUser)
+    public function buildAccountModel($authService, $oauthUser)
     {
         $accountData['kind'] = 'basic';
         // $accountData['roles'] = null;
         $accountData['status'] = 'registered';
         $accountData['displayName'] = $oauthUser->name;
         $accountData['primaryEmail'] = $oauthUser->email;
-        $accountData['imageUrl'] = $oauthUser->avatar_original;
+        $accountData['imageUrl'] = $oauthUser->avatar;
 
         return $authService->getAccountService()->newAccount($accountData);
     }
 
-    function buildProfileModel($authService, $oauthUser)
+    public function buildProfileModel($authService, $oauthUser)
     {
-        $profileModel = new Profile();
-        $profileModel->familyName = ObjectAccessor::get($oauthUser->user, 'last_name');
-        $profileModel->givenName = ObjectAccessor::get($oauthUser->user, 'first_name');
-        $profileModel->highlight = ObjectAccessor::get($oauthUser->user, 'about', null);
-        $profileModel->gender = ObjectAccessor::get($oauthUser->user, 'gender', null);
-        $profileModel->language = ObjectAccessor::get($oauthUser->user, 'locale', null);
-        $profileModel->timezone = ObjectAccessor::get($oauthUser->user, 'timezone', null);
+        $profileData['familyName'] = ObjectAccessor::get($oauthUser->user, 'lastName');
+        $profileData['givenName'] = ObjectAccessor::get($oauthUser->user, 'firstName');
+        $profileData['highlight'] = ObjectAccessor::get($oauthUser->user, 'headline', null);
+        $profileData['gender'] = ObjectAccessor::get($oauthUser->user, 'gender', null);
+        $profileData['language'] = ObjectAccessor::get($oauthUser->user, 'gender', null);
 
-        return $profileModel;
+        $profileData['address_countryCode'] = ObjectAccessor::get($oauthUser->user, 'location.country.code');
+
+        return $authService->getAccountService()->newProfile($profileData);
     }
 
 }

@@ -48,13 +48,24 @@ return [
 
     /**
      * Socialite's Google+ auth driver.
-     * The data here is using EcoLearnia-poc (ecoloearnia@gmail.com account)
-     * To configure, go to https://console.developers.google.com
+     * The data here is using Young-Suk's Facebook account
+     * To configure, go to https://developers.facebook.com/apps
      */
     'facebook' => [
         'client_id' => '454433434750843',
         'client_secret' => getenv('FACEBOOK_CLIENT_SECRET'),
         'redirect' => 'http://localhost:8000/auth/facebook/callback',
+    ],
+
+    /**
+     * Socialite's Google+ auth driver.
+     * The data here is using Young-Suk's personal LinkedIn account
+     * To configure, go to https://www.linkedin.com/secure/developer?newapp=
+     */
+    'linkedin' => [
+        'client_id' => '77gwr0gruwhovu',
+        'client_secret' => getenv('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => 'http://localhost:8000/auth/linkedin/callback',
     ],
 
 ];

@@ -31,14 +31,19 @@ abstract class AbstractAuthSocialController extends Controller
     //Socialite's fields to fetch
     protected $fields = null;
 
+    // debug flag true dumps the user and dies
+    protected $debug = false;
+
     /**
      * @param string $modelFqn  - Fully qualified name of the model
      * @param array $relations -  Array of name of relations for the eager loading
      */
-    public function __construct($driver, $fields = null)
+    public function __construct($driver, $fields = null, $debug = false)
     {
         $this->driver = $driver;
         $this->fields = $fields;
+
+        $this->debug = $debug;
     }
 
     /**
@@ -70,25 +75,19 @@ abstract class AbstractAuthSocialController extends Controller
         // with nonce. This is requires becase we are sending custom parameter
         $authDriver->stateless();
         if ( !empty($this->fields) )
-        $authDriver->fields($this->fields);
-        /*['name', 'email', 'gender', 'verified', 'about'
-            , 'first_name', 'last_name', 'middle_name'
-            , 'bio', 'birthday', 'education', 'interested_in', 'languages'
-            , 'location', 'locale', 'name_format', 'timezone', 'updated_time'
-            , 'website', 'work', 'cover']);
-            */
+            $authDriver->fields($this->fields);
+
         $oauthUser = $authDriver->user();
         $authState = $request->input('state');
 
         // Obtain the original query string as state
         $state = $this->deserialize($authState, true);
 
-        // DEBUGGING:
-        /*
-        $userJson = json_encode ($oauthUser, JSON_PRETTY_PRINT);
-        print_r($oauthUser);
-        die();
-        */
+        if ($this->debug) {
+            $userJson = json_encode ($oauthUser, JSON_PRETTY_PRINT);
+            print_r($oauthUser);
+            die();
+        }
         //Log::info($userJson);
 
         $authCredential = $this->buildAuthModel($authService, $oauthUser);

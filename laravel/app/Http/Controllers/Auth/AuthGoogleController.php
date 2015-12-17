@@ -28,10 +28,9 @@ class AuthGoogleController extends AbstractAuthSocialController
 		parent::__construct('google');
 	}
 
-    // @todo: factor out to strategy
     public function buildAuthModel($authService, $oauthUser)
     {
-        $authData['authSource'] = 'google';
+        $authData['authSource'] = $this->driver;
         $authData['authId'] = $oauthUser->id;
         $authData['authCredentialsRaw'] = json_encode($oauthUser->user);
         $authData['status'] = 1;
