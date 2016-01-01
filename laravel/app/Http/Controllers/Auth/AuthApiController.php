@@ -30,7 +30,7 @@ class AuthApiController extends Controller
     public function myaccount()
     {
         $account = \Auth::user();
-        return json_encode($account);
+        return \Response::json($account);
     }
 
     /**

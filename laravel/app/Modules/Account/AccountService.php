@@ -36,13 +36,29 @@ class AccountService extends AbstractResourceService
         return $model;
     }
 
+    // Override
+    /*
+    public function sanitizeData($data, $modelFqn = NULL)
+    {
+        //unset($data['lastLogin']);
+        return $this->sanitizeData($data);
+    }*/
+
     /**
-     * Sanitized the Account data
+     * Sanitize the Profile data
+     * @return Profile model
      */
     public function sanitizeProfileData($data)
     {
-        $model = new Profile($data);
+        return $this->sanitizeData($data, Profile::class);
+        /*
+        $model = new Profile();
+        $dob = DateTime::createFromFormat('Y-m-d+', $data['dob']);
+        // @todo - remove the time part
+        $data['dob'] = $model->fromDateTime($dob);
+        $model->fill($data);
         return $model->toArray();
+        */
     }
 
     /**
@@ -66,7 +82,8 @@ class AccountService extends AbstractResourceService
         $primaryKeyName = $this->primaryKeyName;
         $pk = $account->$primaryKeyName;
 		$data = [
-			'lastLogin' => new \DateTime()
+			//'lastLogin' => new \DateTime()
+            'lastLogin' => new \Carbon\Carbon()
 		];
 		$this->update($pk, $data);
 	}
@@ -83,8 +100,13 @@ class AccountService extends AbstractResourceService
         $profileData = null;
         if (array_key_exists('profile', $data)) {
             $profileData = $this->sanitizeProfileData($data['profile']);
+
+            //var_dump($profileData);
+            //die();
+
             unset($data['profile']);
         }
+        unset($data['auths']);
 
         $updateResult = null;
         DB::transaction(function () use($pk, $data, $profileData) {

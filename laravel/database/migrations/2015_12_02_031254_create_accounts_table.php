@@ -32,7 +32,7 @@ class CreateAccountsTable extends Migration
             $table->string('roles', 64)->index();
             $table->string('imageUrl')->nullable();
 
-            $table->dateTime('lastLogin');
+            $table->timestamp('lastLogin');
 
             // Constraints
             //$table->primary('uuid');

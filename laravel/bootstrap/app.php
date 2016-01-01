@@ -1,5 +1,8 @@
 <?php
+use Carbon\Carbon;
+
 date_default_timezone_set('America/New_York');
+Carbon::setToStringFormat('c');
 /*
 |--------------------------------------------------------------------------
 | Create The Application

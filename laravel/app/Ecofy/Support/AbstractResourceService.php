@@ -36,14 +36,36 @@ abstract class AbstractResourceService
         return $this->modelFqn;
     }
 
+    public function createModel($data, $modelFqn = null)
+    {
+        $modelClassName = ($modelFqn == null) ? $this->modelFqn: $modelFqn;
+        $model = new $modelClassName();
+        $model->fill($data);
+        $model->createdAt = new DateTime();
+
+        return $model;
+    }
+
     /**
      * Sanitized the data
      */
-    public function sanitizeData($data)
+    public function sanitizeData($data, $modelFqn = null)
     {
-        // The Model::fill checks for fillable and guarded fields
-        $modelClassName = $this->modelFqn;
+        $modelClassName = ($modelFqn == null) ? $this->modelFqn: $modelFqn;
         $model = new $modelClassName();
+
+        if (!empty($model->dateFields)) {
+            // Convert date fields from stringified ISO8601 format into DateTime
+            foreach($model->dateFields as $dateField) {
+                //print("** BEFORE: " . $data[$dateField]);
+                $date = \DateTime::createFromFormat('Y-m-d+', $data[$dateField]);
+                // @todo - remove the time part
+                $data[$dateField] = $model->fromDateTime($date);
+                //print("** AFTER: " . $data[$dateField]);
+            }
+        }
+
+        // The Model::fill checks for fillable and guarded fields
         $model->fill($data);
         return $model->toArray();
     }
@@ -129,6 +151,7 @@ abstract class AbstractResourceService
     {
         $query = $this->buildQuery($criteria);
         $record = $query->first();
+
         return $record;
     }
 

@@ -97,7 +97,7 @@ abstract class AbstractResourceApiController extends BaseController
 	public function show($id)
 	{
 		$resource = $this->service->findByPK($id);
-		return $resource;
+		return json_encode($resource, JSON_PRETTY_PRINT);
 	}
 
 	/**

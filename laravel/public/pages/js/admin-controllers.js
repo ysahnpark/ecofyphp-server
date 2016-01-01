@@ -31,6 +31,7 @@ app.controller('AccountController', [
     if ($routeParams.accountId && $routeParams.accountId != 'new') {
     	self.account = AccountResource.get({id: $routeParams.accountId}, function(data) {
             // nothing to do, data is updated when async is returned.
+            self.temp.dob = decomposeIsoDate(data.profile.dob);
         }, function(error) {
             alert(JSON.stringify(error));
         });
@@ -125,5 +126,19 @@ app.controller('AccountController', [
             alert(JSON.stringify(error));
         });
     };
+
+    function decomposeIsoDate(isoDate)
+    {
+        var date = new Date(isoDate);
+        var dateObj = {};
+        if (date) {
+            dateObj.year = date.getUTCFullYear();
+            dateObj.month = date.getUTCMonth(); // 0-base
+            dateObj.day = date.getUTCDate();
+            dateObj.hours = date.getUTCHours();
+            dateObj.minutes = date.getUTCMinutes();
+        }
+        return dateObj;
+    }
 
 }]);

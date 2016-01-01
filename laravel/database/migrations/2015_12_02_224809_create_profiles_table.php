@@ -29,7 +29,7 @@ class CreateProfilesTable extends Migration
             $table->string('middleName', 64)->nullable();
             $table->text('highlight')->nullable();
 
-            $table->dateTime('dob');
+            $table->date('dob');
             $table->string('gender', 8)->nullable();
             $table->string('phone', 16)->nullable();
             $table->string('mobile', 16)->nullable();

@@ -14,9 +14,11 @@ class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatabl
      */
     protected $dates = ['createdAt', 'modifiedAt', 'disabledAt', 'lastLogin'];
 
+    //protected $dateFormat = 'Y-m-d H:i:s';
+
     protected $guarded = ['sid', 'managedBy', 'createdBy', 'createdAt', 'modifiedBy'
         , 'modifiedAt', 'modifiedCounter'
-    , 'kind' /*, 'lastLogin'*/];
+    , 'kind' , 'lastLogin'];
 
     /**
      * Get the phone record associated with the user.
