@@ -1,7 +1,7 @@
 /**
  * The main application module
  */
-angular.module('mainApp', ['ngRoute', 'ngCookies', 'account', 'ngMaterial'])
+angular.module('mainApp', ['ngRoute', 'ngCookies', 'ngMaterial', 'ecofy-core', 'ecofy-account'])
 .config(['$routeProvider', function($routeProvider) {
     var pathBase = '/pages';
     $routeProvider.when('/login', {

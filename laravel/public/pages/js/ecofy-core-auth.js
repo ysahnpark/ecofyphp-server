@@ -1,9 +1,9 @@
-var accountModule = angular.module('account', ['ngResource']);
+var coreModule = angular.module('ecofy-core', ['ngResource']);
 
 /**
  * Service that provides Authentication facility
  */
-accountModule.service('AuthService', ['$q', '$http', '$cookies',
+coreModule.service('AuthService', ['$q', '$http', '$cookies',
     function($q, $http, $cookies)
 {
     var self = this;

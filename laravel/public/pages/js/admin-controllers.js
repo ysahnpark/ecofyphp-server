@@ -1,12 +1,32 @@
 var app = angular.module('adminApp');
-app.controller('AccountController', ['$cookies', '$routeParams', '$location', 'AuthService', 'AccountResource'
-    , function($cookies, $routeParams, $location, AuthService, AccountResource)
+app.controller('AccountController', [
+    '$cookies', '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource'
+    , function($cookies, $routeParams, $location, AuthService, ReferenceResource, AccountResource)
 {
     var self = this;
     self.accounts = [];
     self.account = null;
     self.queryCriteria = null;
     self.queryResult = null;
+
+    self.temp = {
+        email: null,
+        dob: {
+            month: null,
+            day: null,
+            year: null
+        }
+    };
+
+    self.references = {};
+    loadReferences();
+
+    function loadReferences()
+    {
+        self.references.days = new Array(31);
+        self.references.months = ReferenceResource.lookup('months');
+        self.references.genders = ReferenceResource.lookup('genders');;
+    }
 
     if ($routeParams.accountId && $routeParams.accountId != 'new') {
     	self.account = AccountResource.get({id: $routeParams.accountId}, function(data) {
@@ -62,8 +82,13 @@ app.controller('AccountController', ['$cookies', '$routeParams', '$location', 'A
     	}
     };
 
+    /**
+     * Submit for update
+     */
     this.submit = function() {
-
+        //self.account.primaryEmail = [self.temp.email];
+        var dob = new Date(self.temp.dob.year, self.temp.dob.month, self.temp.dob.day);
+        self.account.profile.dob = moment(dob).format();
         if (self.account.uuid) {
             // Update existing
             delete self.account._id;

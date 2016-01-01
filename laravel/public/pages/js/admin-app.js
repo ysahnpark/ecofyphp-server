@@ -1,7 +1,7 @@
 // When second argument (array) is provided then this becomes a definition,
 // otherwise it is a loading
 var pathBase = '/pages';
-angular.module('adminApp', ['ngRoute', 'ngCookies', 'account', 'ngMaterial'])
+angular.module('adminApp', ['ngRoute', 'ngCookies', 'ngMaterial', 'ecofy-core', 'ecofy-account'])
 .config(['$routeProvider', function($routeProvider) {
 
     $routeProvider.when('/', {

@@ -5,7 +5,7 @@
       <h2 class="md-flex">Signup</h2>
     </div>
   </md-toolbar>
-  
+
   <md-content class="md-padding" layout="row" layout-align="center center" ng-cloak>
 
     <form name="accountForm" ng-submit="signupCtrl.submit()">
@@ -41,14 +41,14 @@
 
         <md-input-container flex>
           <md-select required ng-model="signupCtrl.temp.dob.month">
-            <md-option ng-repeat="month in signupCtrl.referencial.months" value="{{month.value}}">
+            <md-option ng-repeat="month in signupCtrl.references.months" value="{{month.value}}">
               {{month.name}}
             </md-option>
           </md-select>
         </md-input-container>
         <md-input-container flex>
           <md-select required ng-model="signupCtrl.temp.dob.day">
-            <md-option ng-repeat="day in signupCtrl.referencial.days track by $index" value="{{$index}}">
+            <md-option ng-repeat="day in signupCtrl.references.days track by $index" value="{{$index}}">
               {{$index}}
             </md-option>
           </md-select>
@@ -60,7 +60,7 @@
       <md-input-container flex>
         <label>Gender</label>
         <md-select ng-model="signupCtrl.account.profile.gender">
-          <md-option ng-repeat="gender in signupCtrl.referencial.genders" value="{{gender.value}}">
+          <md-option ng-repeat="gender in signupCtrl.references.genders" value="{{gender.value}}">
             {{gender.name}}
           </md-option>
         </md-select>
@@ -74,5 +74,5 @@
       <md-button class="md-raised" ng-click="signupCtrl.signup()">Sign up</md-button>
     </form>
   </md-content>
-  
+
 </div>

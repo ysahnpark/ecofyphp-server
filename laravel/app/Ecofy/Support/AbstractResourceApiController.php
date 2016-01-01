@@ -46,6 +46,9 @@ abstract class AbstractResourceApiController extends BaseController
 			$result = $resources;
 		}
 
+		//var_dump($result);
+		//die();
+
 		return json_encode($result, JSON_PRETTY_PRINT);
 	}
 

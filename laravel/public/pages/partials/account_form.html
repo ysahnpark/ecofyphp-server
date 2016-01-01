@@ -46,32 +46,34 @@
       <div layout layout-sm="column">
 
         <md-input-container flex>
-          <md-select required ng-model="signupCtrl.temp.dob.month">
-            <md-option ng-repeat="month in signupCtrl.referencial.months" value="{{month.value}}">
+          <md-select required ng-model="accountCtrl.temp.dob.month">
+            <md-option ng-repeat="month in accountCtrl.references.months" value="{{month.value}}">
               {{month.name}}
             </md-option>
           </md-select>
         </md-input-container>
         <md-input-container flex>
-          <md-select required ng-model="signupCtrl.temp.dob.day">
-            <md-option ng-repeat="day in signupCtrl.referencial.days track by $index" value="{{$index}}">
+          <md-select required ng-model="accountCtrl.temp.dob.day">
+            <md-option ng-repeat="day in accountCtrl.references.days track by $index" value="{{$index}}">
               {{$index}}
             </md-option>
           </md-select>
         </md-input-container>
         <md-input-container flex>
-          <input ng-model="signupCtrl.temp.dob.year" required ng-pattern="/^[0-9]{4}$/" >
+          <input ng-model="accountCtrl.temp.dob.year" required ng-pattern="/^[0-9]{4}$/" >
         </md-input-container>
       </div>
 
+      <!--
       <md-input-container flex>
-      <label>Language</label>
-      <md-chips
-        ng-model="accountCtrl.account.profile.languages"
-        placeholder="Enter a language"
-        secondary-placeholder="+Language">
-      </md-chips>
+          <label>Language</label>
+          <md-chips
+            ng-model="accountCtrl.account.profile.language"
+            placeholder="Enter a language"
+            secondary-placeholder="+Language">
+          </md-chips>
       </md-input-container>
+    -->
 
       <md-input-container flex>
         <label>Address</label>

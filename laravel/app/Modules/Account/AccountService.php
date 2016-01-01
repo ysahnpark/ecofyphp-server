@@ -74,6 +74,10 @@ class AccountService extends AbstractResourceService
     // Overriding from AbstractResourceService
     // Resource Access Operations {{
 
+    /**
+     * Updates the record.
+     * Wihin a transaction update profile and account
+     */
     public function update($pk, $data, $options = null)
     {
         $profileData = null;

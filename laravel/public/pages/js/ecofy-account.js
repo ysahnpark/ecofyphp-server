@@ -1,9 +1,9 @@
-var accountModule = angular.module('account');
+var accountModule = angular.module('ecofy-account', []);
 
 /**
- * Service that provides REST access for Account resource  
+ * Service that provides REST access for Account resource
  */
-accountModule.factory('AccountResource', ['$resource', 'AuthService', 
+accountModule.factory('AccountResource', ['$resource', 'AuthService',
 	function($resource, AuthService)
 {
 
@@ -20,5 +20,5 @@ accountModule.factory('AccountResource', ['$resource', 'AuthService',
 	        'update': { method:'PUT', headers: { 'Authorization': token } },
 	        'query2': { method:'GET', headers: { 'Authorization': token }, paramDefaults: { 'meta': 'true'} }
 	    });
- 
+
 }]);

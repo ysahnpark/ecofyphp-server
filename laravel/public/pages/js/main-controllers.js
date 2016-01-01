@@ -1,7 +1,8 @@
 var pathBase = '/pages';
 var app = angular.module('mainApp');
-app.controller('SigninController', ['$window', '$location', 'AuthService',
-    function($window, $location, AuthService)
+app.controller('SigninController', [
+    '$window', '$location', 'AuthService'
+    , function($window, $location, AuthService)
 {
 
     var self = this;
@@ -39,8 +40,9 @@ app.controller('SigninController', ['$window', '$location', 'AuthService',
 
 }]);
 
-app.controller('SignupController', ['$window', '$location', 'AuthService',
-    function($window, $location, AuthService)
+app.controller('SignupController', [
+    '$window', '$location', 'AuthService', 'ReferenceResource'
+    , function($window, $location, AuthService, ReferenceResource)
 {
 
     var self = this;
@@ -55,38 +57,14 @@ app.controller('SignupController', ['$window', '$location', 'AuthService',
         }
     };
 
-    self.referencial = {
-        genders: [],
-        days: [],
-        months: [],
-    };
+    self.references = {};
+    loadReferences();
 
-    loadReferencials();
-
-    function loadReferencials()
+    function loadReferences()
     {
-        self.referencial.days = new Array(31);
-
-        self.referencial.months = [
-            {value: '1', name:'Januray'},
-            {value: '2', name:'February'},
-            {value: '3', name:'March'},
-            {value: '4', name:'April'},
-            {value: '5', name:'May'},
-            {value: '6', name:'June'},
-            {value: '7', name:'July'},
-            {value: '8', name:'August'},
-            {value: '9', name:'September'},
-            {value: '10', name:'October'},
-            {value: '11', name:'November'},
-            {value: '12', name:'December'},
-        ];
-
-        self.referencial.genders = [
-            {value: '1', name:'Female'},
-            {value: '2', name:'Male'},
-            {value: '3', name:'Other'},
-        ];
+        self.references.days = new Array(31);
+        self.references.months = ReferenceResource.lookup('months');
+        self.references.genders = ReferenceResource.lookup('genders');;
     }
 
     this.redir = function(path) {
@@ -98,7 +76,7 @@ app.controller('SignupController', ['$window', '$location', 'AuthService',
      * Calls signup remote endpoint
      */
     this.signup = function() {
-        self.account.profile.emails = [self.temp.email];
+        self.account.primaryEmails = [self.temp.email];
         self.account.profile.dob = new Date(self.temp.dob.year, self.temp.dob.month, self.temp.dob.day);
         self.account.auth.username = self.temp.email;
         AuthService.signup(self.account)
