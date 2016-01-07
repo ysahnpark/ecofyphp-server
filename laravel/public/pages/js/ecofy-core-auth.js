@@ -6,8 +6,8 @@ var coreModule = angular.module('ecofy-core', ['ngResource']);
 coreModule.service('AuthService', ['$q', '$http', '$cookies',
     function($q, $http, $cookies)
 {
-    var self = this;
     var basePath = '/api';
+    var self = this;
 
     this.ecofyToken = null; // Same as the cookie('ecofy_token')
     this.account = null;

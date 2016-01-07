@@ -42,6 +42,7 @@ class AuthApiController extends Controller
 
         $models = [];
 
+        // @todo: use authService::createModel()
         $authCredentials = new Auth();
         $authCredentials->authSource = 'local';
         $authCredentials->authId = '-NONE-'; // only applicable for social network
@@ -49,6 +50,7 @@ class AuthApiController extends Controller
         $authCredentials->security_password = ObjectAccessor::get($payload, 'auth.security.password');
         $models['auth'] = $authCredentials;
 
+        // @todo: use AccountService::createModel()
         $profileModel = new Profile();
         $profileModel->givenName = ObjectAccessor::get($payload, 'profile.givenName');
         $profileModel->familyName = ObjectAccessor::get($payload, 'profile.familyName');

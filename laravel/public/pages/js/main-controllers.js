@@ -4,7 +4,6 @@ app.controller('SigninController', [
     '$window', '$location', 'AuthService'
     , function($window, $location, AuthService)
 {
-
     var self = this;
     self.account;
 

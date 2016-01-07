@@ -24,8 +24,8 @@ class CreateAccountsTable extends Migration
             $table->integer('modifiedCounter')->default(0);
 
             $table->timestamp('disabledAt')->nullable();
-            $table->string('kind', 12)->index();
-            $table->string('status', 8);
+            $table->string('kind', 12)->index(); // basic, premium
+            $table->string('status', 8); // registered, signedup, imported, active
             $table->string('displayName', 64);
             $table->string('primaryEmail', 64)->index();
 

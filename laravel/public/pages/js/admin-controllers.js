@@ -1,7 +1,7 @@
 var app = angular.module('adminApp');
 app.controller('AccountController', [
-    '$cookies', '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource'
-    , function($cookies, $routeParams, $location, AuthService, ReferenceResource, AccountResource)
+    '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource'
+    , function($routeParams, $location, AuthService, ReferenceResource, AccountResource)
 {
     var self = this;
     self.accounts = [];
@@ -127,6 +127,10 @@ app.controller('AccountController', [
         });
     };
 
+    /**
+     * Parses and decomposes date (in ISO8601) into object with
+     * year, month, day, hours, minutes, seconds
+     */
     function decomposeIsoDate(isoDate)
     {
         var date = new Date(isoDate);
@@ -137,8 +141,87 @@ app.controller('AccountController', [
             dateObj.day = date.getUTCDate();
             dateObj.hours = date.getUTCHours();
             dateObj.minutes = date.getUTCMinutes();
+            dateObj.seconds = date.getUTCSeconds();
         }
         return dateObj;
+    }
+
+}]);
+
+
+app.controller('ImportController', [
+    '$http', '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource'
+    , function($http, $routeParams, $location, AuthService, ReferenceResource, AccountResource)
+{
+    var basePath = '/api';
+
+    var self = this;
+    self.dataToImport = null;
+    self.validated = {
+        errors: null,
+        records: null
+    };
+
+    /**
+     * Submit dataToImport to server for validation
+     */
+    this.process = function(mode)
+    {
+        var objs = Papa.parse(self.dataToImport, {header: true});
+        preprocessInput(objs.data);
+
+        var payload = {
+            type: "account",
+            mode: mode,
+            onmatch: "skip",
+            data: objs.data
+        }
+        $http.post(basePath + '/import', payload)
+        .then(function(response) {
+            self.validated = response.data;
+        })
+        .catch(function(error) {
+            // Error wrapped by $http containing config, data, status, statusMessage, etc.
+            //if (error.data)
+            self.validated.errors = error;
+            throw error;
+        });
+    }
+
+    /**
+     *
+     * Convert those properties in which names has dot notation
+     * into nested object
+     *
+     * @param objs {Array<Object>}
+     */
+    function preprocessInput(objs)
+    {
+        for(var i=0; i < objs.length; i++)
+        {
+            var obj = objs[i];
+            for (var prop in obj) {
+                if (prop.indexOf('.') !== -1) {
+                    // create nested property
+                    var val = obj[prop];
+                    dotAccess(obj, prop, val);
+                    delete obj[prop];
+                }
+            }
+        }
+    }
+
+    /**
+     * Converts those properties
+     * Precondition: the json should be an array of objects, the objects can
+     * contain nested objects but should not contain nested array
+     */
+    function postprocessResponse(json)
+    {
+        for(var i=0; i < json.length; i++)
+        {
+            json[i]
+        }
     }
 
 }]);

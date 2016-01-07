@@ -2,6 +2,7 @@
 namespace App\Ecofy\Support;
 
 use Log;
+use DateTime;
 use \Ramsey\Uuid\Uuid;
 
 
@@ -36,39 +37,79 @@ abstract class AbstractResourceService
         return $this->modelFqn;
     }
 
+    /**
+     * Validation rules for creation
+     * derived class should override this
+     *
+     * @var array
+     */
+    protected $validation_rules_create = array();
+
+    /**
+     * Validation rules for update.
+     * derived class should override this.
+     *
+     * @var array
+     */
+    protected $validation_rules_update = array();
+
+    /**
+     * Returns the validation object
+     */
+    public function validator($fields, $is_create = true)
+    {
+    	$rules = ($is_create) ? $this->validation_rules_create : $this->validation_rules_update;
+        return \Validator::make($fields, $rules);
+    }
+
+    /**
+     * createModel
+     * Creates model filling with data by sanitizing first
+     */
     public function createModel($data, $modelFqn = null)
     {
         $modelClassName = ($modelFqn == null) ? $this->modelFqn: $modelFqn;
         $model = new $modelClassName();
-        $model->fill($data);
-        $model->createdAt = new DateTime();
 
-        return $model;
-    }
-
-    /**
-     * Sanitized the data
-     */
-    public function sanitizeData($data, $modelFqn = null)
-    {
-        $modelClassName = ($modelFqn == null) ? $this->modelFqn: $modelFqn;
-        $model = new $modelClassName();
+        if (empty($data))
+            return $model;
 
         if (!empty($model->dateFields)) {
             // Convert date fields from stringified ISO8601 format into DateTime
             foreach($model->dateFields as $dateField) {
                 //print("** BEFORE: " . $data[$dateField]);
-                $date = \DateTime::createFromFormat('Y-m-d+', $data[$dateField]);
-                // @todo - remove the time part
-                $data[$dateField] = $model->fromDateTime($date);
-                //print("** AFTER: " . $data[$dateField]);
+                if (array_key_exists($dateField, $data)) {
+                    $date = \DateTime::createFromFormat('Y-m-d+', $data[$dateField]);
+                    // @todo - remove the time part
+                    $data[$dateField] = $model->fromDateTime($date);
+                    //print("** AFTER: " . $data[$dateField]);
+                }
             }
         }
 
         // The Model::fill checks for fillable and guarded fields
         $model->fill($data);
-        return $model->toArray();
+        return $model;
     }
+
+
+    /**
+     * Creates a new model initializing the createdAt property
+     */
+    public function createNewModel($data, $modelFqn = null)
+    {
+        $model = $this->createModel($data, $modelFqn);
+        $model->createdAt = new DateTime();
+
+        // Generate hew UUID
+        $primaryKeyName = $this->primaryKeyName;
+        if (empty($model->$primaryKeyName)) {
+            $model->$primaryKeyName = $this->genUuid();
+        }
+
+        return $model;
+    }
+
 
     // Resource Access Operations {{
     /**
@@ -80,20 +121,23 @@ abstract class AbstractResourceService
      */
     public function add($resource, $options = null)
     {
-        $model = $resource;
-        if ($resource instanceof Model) {
-            $primaryKeyName = $this->primaryKeyName;
-            if (empty($resoure->$primaryKeyName)) {
-                $resoure->$primaryKeyName = $this->genUuid();
-            }
-            $resoure->save();
+        $model = null;
+        if (is_array($resource)) {
+            // Create model off of array
+            $model = $this->createNewModel($resoure);
+        } else  if ($resource instanceof Model) {
+            $model = $resource;
         } else {
-            // Is an array
-            if (empty($resoure[$this->primaryKeyName])) {
-                $resoure[$this->primaryKeyName] = $this->genUuid();
-            }
-            $model = Account::create($resoure);
+            throw new Exception('Unsupported argument type passed');
         }
+        /* no longer necessary, createModel() generates the uuid
+        // Assign a new UUID
+        $primaryKeyName = $this->primaryKeyName;
+        if (empty($model->$primaryKeyName)) {
+            $model->$primaryKeyName = $this->genUuid();
+        }
+        */
+        $model->save();
         return $model;
     }
 
@@ -185,7 +229,8 @@ abstract class AbstractResourceService
         */
         // @todo - Some cases sanitization should be skipped
         //         E.g. when updating lastLogin
-        $setData = $this->sanitizeData($data);
+        $setData = $this->createModel($data)->toArray();
+        $setData['modifiedAt'] = new \DateTime();
 
         $criteria = $this->criteriaByPk($pk);
         $query = $this->buildQuery($criteria);
@@ -193,7 +238,7 @@ abstract class AbstractResourceService
     }
 
     /**
-     * Remove
+     * Remove only one record
      *
      * @param Criteria  $criteria - The crediential object
      * @param object  $options  - Any options for remove operation
@@ -216,7 +261,7 @@ abstract class AbstractResourceService
     public function removeByPK($pk, $options = null)
     {
         $criteria = $this->criteriaByPk($pk);
-        $deletedRows = $this->remove($criteria);
+        $deletedRows = $this->remove($criteria, $options);
         return $deletedRows;
     }
 
@@ -259,5 +304,12 @@ abstract class AbstractResourceService
 
         return $modelQuery;
     }
+
+    // Import/Export {{
+    public function prepareRecordForImport(&$row)
+    {
+        // do nothing, override if you need custom logic
+    }
+    // }}
 
 }

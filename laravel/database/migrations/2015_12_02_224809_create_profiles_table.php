@@ -24,12 +24,12 @@ class CreateProfilesTable extends Migration
             $table->integer('modifiedCounter')->default(0);
 
             $table->uuid('accountUuid')->index();
-            $table->string('familyName', 64)->index();
-            $table->string('givenName', 64)->index();
+            $table->string('familyName', 64)->index(); // required
+            $table->string('givenName', 64)->index(); // required
             $table->string('middleName', 64)->nullable();
             $table->text('highlight')->nullable();
 
-            $table->date('dob');
+            $table->date('dob')->nullable();
             $table->string('gender', 8)->nullable();
             $table->string('phone', 16)->nullable();
             $table->string('mobile', 16)->nullable();

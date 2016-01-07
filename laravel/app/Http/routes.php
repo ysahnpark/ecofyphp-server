@@ -31,6 +31,8 @@ Route::group(['middleware' => 'ecofyauth'], function () {
     Route::resource('api/accounts', 'AccountApiController');
     Route::resource('api/auths', 'AuthApiController');
     Route::get('api/myaccount', 'Auth\AuthApiController@myaccount');
+
+    Route::post('api/import', 'ImportApiController@process');
 });
 
 Route::post('api/signup', 'Auth\AuthApiController@signup');

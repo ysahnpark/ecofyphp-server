@@ -1,11 +1,12 @@
 <?php
 namespace App\Modules\Account;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Ecofy\Support\ModelBase;
 
-class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatable
+class Account extends ModelBase implements \Illuminate\Contracts\Auth\Authenticatable
 {
     // model configuration
+    // Question to myself: Why is this set to sid and not uuid???
     protected $primaryKey = 'sid';
     public $timestamps = false;
     /**
@@ -45,6 +46,12 @@ class Account extends Model implements \Illuminate\Contracts\Auth\Authenticatabl
              $account->profile()->delete();
              $account->auths()->delete();
         });
+    }
+
+    // From ModelBase
+    public function _name()
+    {
+        return $this->givenName . ' ' . $this->familyName;
     }
 
     // From Authenticatable
