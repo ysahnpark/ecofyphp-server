@@ -1,9 +1,9 @@
 <?php
 namespace App\Modules\Relation;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Ecofy\Support\ModelBase;
 
-class Relation extends Model
+class Relation extends ModelBase
 {
     // model configuration
     protected $primaryKey = 'sid';

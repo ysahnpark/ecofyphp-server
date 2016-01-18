@@ -34,6 +34,8 @@ Route::group(['middleware' => 'ecofyauth'], function () {
 
     Route::post('api/import', 'ImportApiController@process');
 });
+// @todo include as part of protected API
+Route::resource('api/accounts.relations', 'RelationApiController');
 
 Route::post('api/signup', 'Auth\AuthApiController@signup');
 Route::post('api/signin', 'Auth\AuthApiController@signin');

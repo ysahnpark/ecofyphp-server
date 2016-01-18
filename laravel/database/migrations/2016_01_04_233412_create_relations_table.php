@@ -28,7 +28,7 @@ class CreateRelationsTable extends Migration
             $table->uuid('account2Uuid', 64)->index();
             $table->string('role2', 64)->index(); // mentee
             $table->string('relationship', 32)->index(); // mentoring, teaching,
-            $table->tinyInteger('strenght'); // 0 ~ 100, 100 strong relationship
+            $table->tinyInteger('strenght')->default(1); // 0 ~ 100, 100 strong relationship
             $table->timestamp('lastInteraction');
 
             $table->foreign('account1Uuid')->references('uuid')->on('accounts');

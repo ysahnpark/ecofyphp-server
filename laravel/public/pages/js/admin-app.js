@@ -17,6 +17,10 @@ angular.module('adminApp', ['ngRoute', 'ngCookies', 'ngMaterial', 'ecofy-core', 
       controller: 'AccountController as accountCtrl',
       templateUrl: pathBase + '/partials/account_form.html'
     })
+    .when('/account/:accountId/relations', {
+      controller: 'RelationsController as relationsCtrl',
+      templateUrl: pathBase + '/partials/account_relations.html'
+    })
     .when('/import', {
       controller: 'ImportController as importCtrl',
       templateUrl: pathBase + '/partials/account_import.html'

@@ -1,12 +1,11 @@
 WIP: Relation
-WIP: Import bulk from CSV
-- Lookup service (geography: country, province)
 - N:M Account-to-accont relation (e.g parent, teacher, mentor, etc.)
+- Account Dashboard page: security, personal info, preferences
+- Role & Permission management UI
+- Lookup service (geography: country, province)
 - DB seeding with host root
 - CSFR
-- Roles
-- Role & Permission management UI
 
-
+CSV Import:
 displayName,primaryEmail,profile.givenName,profile.familyName,auth.username,auth.security_password
 Yoohoo,test@gmc.com,Impoter,Importalia,importtest,importtest

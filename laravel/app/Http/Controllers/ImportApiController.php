@@ -88,10 +88,9 @@ class ImportApiController extends Controller
 						$service->prepareRecordForImport($row);
 						$model = $service->createNewModel($row);
 						$model->createdBy = $sessionAccount->uuid;
-						//print_r($model->toJson(JSON_PRETTY_PRINT));
-						//die();
-
 						$record = $service->add($model);
+						// Run below within transaction with add
+						$service->afterImport($record);
 
 						$result['items_created'][] = $record->_name();
 						$result['items_created_count']++;

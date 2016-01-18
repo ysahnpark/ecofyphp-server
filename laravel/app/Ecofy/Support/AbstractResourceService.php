@@ -2,9 +2,11 @@
 namespace App\Ecofy\Support;
 
 use Log;
+use Exception;
 use DateTime;
 use \Ramsey\Uuid\Uuid;
 
+use Illuminate\Database\Eloquent\Model;
 
 abstract class AbstractResourceService
 {
@@ -96,9 +98,13 @@ abstract class AbstractResourceService
     /**
      * Creates a new model initializing the createdAt property
      */
-    public function createNewModel($data, $modelFqn = null)
+    public function createNewModel($data = null, $modelFqn = null)
     {
         $model = $this->createModel($data, $modelFqn);
+        $sessionAccount = \Auth::user();
+        if (!empty($sessionAccount)) {
+            $model->createdBy = $sessionAccount->uuid;
+        }
         $model->createdAt = new DateTime();
 
         // Generate hew UUID
@@ -125,7 +131,7 @@ abstract class AbstractResourceService
         if (is_array($resource)) {
             // Create model off of array
             $model = $this->createNewModel($resoure);
-        } else  if ($resource instanceof Model) {
+        } else if ($resource instanceof Model) {
             $model = $resource;
         } else {
             throw new Exception('Unsupported argument type passed');
@@ -144,8 +150,8 @@ abstract class AbstractResourceService
     /**
      * query
      *
-     * @param Object  $criteria - The criteria for the query
-     * @param Object  $options  - Any options for query operation
+     * @param Object $criteria - The criteria (in EcoCrieteria format) for the query
+     * @param Object $options  - Any options for query operation
      * @return Array.<Model>  - Upon success, return the models
      */
     public function query($criteria, $options = null)
@@ -295,6 +301,7 @@ abstract class AbstractResourceService
 
         $modelQuery = $modelClassName::query();
         if ( !empty($this->relations)) {
+            // Same as Model::with([relations])
             $modelQuery->with($this->relations);
         }
         $query = $modelQuery->getQuery();
@@ -306,7 +313,22 @@ abstract class AbstractResourceService
     }
 
     // Import/Export {{
+
+    /**
+     * Pre process with the model before importing.
+     * Notice the parameter is reference so the data can be modified.
+     *
+     * @param {array} &$row the row to be imported
+     */
     public function prepareRecordForImport(&$row)
+    {
+        // do nothing, override if you need custom logic
+    }
+
+    /**
+     * Post process with the model after successfully imported.
+     */
+    public function afterImport(&$model)
     {
         // do nothing, override if you need custom logic
     }

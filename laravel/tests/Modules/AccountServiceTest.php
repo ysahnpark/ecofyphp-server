@@ -21,7 +21,7 @@ class AccountServiceTest extends TestCase
     public function testCreateModel()
     {
         $svc = new AccountService();
-        $input = $this->createAccountInput();
+        $input = self::createAccountInput();
         $model = $svc->createModel($input);
 
         $this->assertTrue(!empty($model), 'Account model empty');
@@ -43,7 +43,7 @@ class AccountServiceTest extends TestCase
     public function testCreateNewModel()
     {
         $svc = new AccountService();
-        $input = $this->createAccountInput();
+        $input = self::createAccountInput();
         $model = $svc->createNewModel($input);
 
         $this->assertTrue(!empty($model), 'Account model empty');
@@ -65,7 +65,7 @@ class AccountServiceTest extends TestCase
     public function testAddFindRemoveModel()
     {
         $svc = new AccountService();
-        $model = $this->addTestAccount($svc);
+        $model = self::addTestAccount($svc);
 
         $result = $svc->findByPK($model->uuid);
 
@@ -82,6 +82,7 @@ class AccountServiceTest extends TestCase
 
         $profileCnt = Profile::where('uuid', '=', $result->profile->uuid)->count();
         $this->assertEquals(0, $profileCnt, 'Profile still exists after account removal');
+
     }
 
 
@@ -93,9 +94,9 @@ class AccountServiceTest extends TestCase
     public function testUpdateAccount()
     {
         $svc = new AccountService();
-        $model = $this->addTestAccount($svc);
+        $model = self::addTestAccount($svc);
 
-        $newData = $this->createAccountInput();
+        $newData = self::createAccountInput();
         $newData['displayName'] = 'TestUpdated';
         $newData['profile']['familyName'] = 'UtestUpdated';
 
@@ -111,28 +112,32 @@ class AccountServiceTest extends TestCase
         $this->assertEquals($newData['displayName'] , $retrieved->displayName);
         $this->assertEquals($newData['profile']['familyName'] , $retrieved->profile->familyName);
 
-        $svc->removeByPK($model->uuid);
+        self::removeTestAccount($svc, $model->uuid);
     }
 
     // Auxiliary function_exists
-    protected function addTestAccount($svc)
+    public static function addTestAccount($svc,
+        $primaryEmail = 'test@utest.net',
+        $kind = 'kutest', $familyName = 'UTest')
     {
-        $input = $this->createAccountInput();
+        $input = self::createAccountInput($primaryEmail, $kind, $familyName);
         $model = $svc->createNewModel($input);
         $svc->add($model);
         return $model;
     }
 
-    protected function removeTestAccount()
+    public static function removeTestAccount($svc, $uuid)
     {
-
+        $svc->removeByPK($uuid);
     }
 
 
-    protected function createAccountInput()
+    public static function createAccountInput(
+        $primaryEmail = 'test@utest.net',
+        $kind = 'kutest', $familyName = 'UTest')
     {
         $profile = [
-            'familyName' => 'Utest',
+            'familyName' => $familyName,
             'givenName' => 'createAccountInput',
             'dob' => '2015-09-21',
             'language' => 'en'
@@ -147,8 +152,8 @@ class AccountServiceTest extends TestCase
 
         $model = [
             'displayName' => 'Test',
-            'primaryEmail' => 'test@utest.net',
-            'kind' => 'kutest',
+            'primaryEmail' => $primaryEmail,
+            'kind' => $kind,
             'status' => 'testing',
             'roles' => 'tester',
             'profile' => $profile,

@@ -1,7 +1,10 @@
+
+var basePath = '/api';
+
 var app = angular.module('adminApp');
 app.controller('AccountController', [
-    '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource'
-    , function($routeParams, $location, AuthService, ReferenceResource, AccountResource)
+    '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource', 'RelationResource'
+    , function($routeParams, $location, AuthService, ReferenceResource, AccountResource, RelationResource)
 {
     var self = this;
     self.accounts = [];
@@ -28,10 +31,12 @@ app.controller('AccountController', [
         self.references.genders = ReferenceResource.lookup('genders');;
     }
 
+    // Loads either the account in session or the list of accounts
     if ($routeParams.accountId && $routeParams.accountId != 'new') {
     	self.account = AccountResource.get({id: $routeParams.accountId}, function(data) {
             // nothing to do, data is updated when async is returned.
             self.temp.dob = decomposeIsoDate(data.profile.dob);
+            retrieveRelations();
         }, function(error) {
             alert(JSON.stringify(error));
         });
@@ -94,6 +99,7 @@ app.controller('AccountController', [
             // Update existing
             delete self.account._id;
             AccountResource.update({id: self.account.uuid}, self.account);
+            self.retrieveRelations();
         } else {
             // Create new
             var newAccount = new AccountResource(self.account);
@@ -107,8 +113,9 @@ app.controller('AccountController', [
         }
     };
 
-
-
+    /**
+     * Query accounts
+     */
     function query(criteria) {
         var qparms = $location.search();
         var queryArgs = {
@@ -117,7 +124,7 @@ app.controller('AccountController', [
             _limit: qparms._limit
         };
 
-        // initialize
+        // Fetch from remote
         self.accounts = AccountResource.query2(queryArgs, function(data) {
             self.queryResult = data;
             self.queryResult.numPages = Math.ceil(self.queryResult.totalHits / self.queryResult.limit);
@@ -126,6 +133,7 @@ app.controller('AccountController', [
             alert(JSON.stringify(error));
         });
     };
+
 
     /**
      * Parses and decomposes date (in ISO8601) into object with
@@ -149,12 +157,74 @@ app.controller('AccountController', [
 }]);
 
 
+app.controller('RelationsController', [
+    '$http', '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource', 'RelationResource'
+    , function($http, $routeParams, $location, AuthService, ReferenceResource, AccountResource, RelationResource)
+{
+    self = this;
+    /* relations */
+    self.relations = [];
+    self.session = null;
+
+    AuthService.fetchMyAccount()
+    .then(function(account) {
+      self.session = account;
+      retrieveRelations();
+    })
+    .catch(function(error) {
+    });
+
+
+    /**
+     * Retrieve relations
+     */
+    function retrieveRelations(criteria) {
+        var qparms = $location.search();
+        var queryArgs = {
+            accountId: self.session.uuid,
+            _meta: 'true',
+            _page: qparms._page,
+            _limit: qparms._limit,
+            _q: ''
+        };
+
+        // Fetch from remote
+        RelationResource.query2(queryArgs, function(data) {
+            //data.documents;
+            self.relations = normalizeResult(self.session.uuid, data.documents);
+        }, function(error) {
+            alert(JSON.stringify(error));
+        });
+    };
+
+    /**
+     * Normalizes the resut (list of relations) such that includes
+     * properties:
+     * thisRole : the role of the account in session
+     * counterpartAccount : the other account
+     * counterpartRole : the role of the other account
+     */
+    function normalizeResult(thisUuid, result)
+    {
+        for(i=0; i < result.length; i++) {
+            if (thisUuid == result[i].account1Uuid) {
+                result[i].thisRole = result[i].role1;
+                result[i].counterpartAccount = result[i].account2;
+                result[i].counterpartRole = result[i].role2;
+            } else {
+                result[i].thisRole = result[i].role2;
+                result[i].counterpartAccount = result[i].account1;
+                result[i].counterpartRole = result[i].role1;
+            }
+        }
+        return result;
+    }
+}]);
+
 app.controller('ImportController', [
     '$http', '$routeParams', '$location', 'AuthService', 'ReferenceResource', 'AccountResource'
     , function($http, $routeParams, $location, AuthService, ReferenceResource, AccountResource)
 {
-    var basePath = '/api';
-
     var self = this;
     self.dataToImport = null;
     self.validated = {

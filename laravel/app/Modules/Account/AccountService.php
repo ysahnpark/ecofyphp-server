@@ -40,9 +40,12 @@ class AccountService extends AbstractResourceService
         'primaryEmail' => 'email'
     );
 
+    protected $relationService;
+
 
     public function __construct() {
 		parent::__construct('\\App\\Modules\\Account\\Account', ['profile', 'auths']);
+        $this->relationService = new \App\Modules\Relation\RelationService();
 	}
 
     /**
@@ -73,7 +76,7 @@ class AccountService extends AbstractResourceService
     /**
      * Creates a new model initializing the createdAt property
      */
-    public function createNewModel($data, $modelFqn = null)
+    public function createNewModel($data = null, $modelFqn = null)
     {
         $model = parent::createNewModel($data, $modelFqn);
         if (array_key_exists('profile', $data)) {
@@ -254,6 +257,17 @@ class AccountService extends AbstractResourceService
         $row['auth']['uuid'] = $this->genUuid();
         $row['auth']['authSource'] = 'local';
         $row['auth']['authId'] = $row['auth']['uuid'];
+    }
+
+    public function afterImport(&$model)
+    {
+        $sessionAccount = \Auth::user();
+
+        // Create relation
+        $this->relationService->addRelation('supervision'
+            $sessionAccount->uuid, 'supervisor',
+            $model->uuid, 'supervisee');
+
     }
     // }}
 }

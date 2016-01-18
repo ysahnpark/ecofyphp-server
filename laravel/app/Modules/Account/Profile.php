@@ -1,9 +1,9 @@
 <?php
 namespace App\Modules\Account;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Ecofy\Support\ModelBase;
 
-class Profile extends Model
+class Profile extends ModelBase
 {
     // model configuration
     protected $primaryKey = 'sid';

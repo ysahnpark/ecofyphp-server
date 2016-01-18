@@ -1,35 +1,32 @@
 <?php
-namespace App\Ecofy\Support;
+namespace App\Http\Controllers;
 
 use DB;
 use Log;
 use Illuminate\Http\Request;
 
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Ecofy\Support\EcoCriteriaBuilder;
+use App\Ecofy\Support\AbstractResourceController;
+use App\Modules\Relation\RelationService;
 
-use App\Ecofy\Support\SRQLParser;
-
-abstract class AbstractResourceApiController extends AbstractResourceController
+class RelationApiController extends AbstractResourceController
 {
-
-	public function __construct($service) {
-		parent::__construct($service);
+	public function __construct() {
+		parent::__construct(new RelationService);
 	}
 
     /**
 	 * Display a listing of the resource.
 	 *
-	 * @param {Requeest} $request
 	 * @return Response
 	 */
-	public function index(Request $request)
+	public function index($containerUuid, Request $request)
 	{
         $queryCtx = $this->queryContext($request);
 
-		$resources = $this->service->query($queryCtx->criteria, $queryCtx);
+		$criteria = $queryCtx->criteria;
+
+		$resources = $this->service->queryRelationsOf($containerUuid, $criteria, $queryCtx);
 
 		$result = null;
 		if ($queryCtx->envelop) {
@@ -44,7 +41,6 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 		} else {
 			$result = $resources;
 		}
-
 		//var_dump($result);
 		//die();
 
@@ -55,7 +51,7 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 	 * Showing the form is not supported
 	 *
 	 */
-	public function create()
+	public function create($containerUuid)
 	{
 		return $this->jsonResponse('Unsupported endpoint', 404);
 	}
@@ -65,22 +61,10 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store($containerUuid)
 	{
-		$data = \Input::all();
-
-		$createMethod = 'add';
-
-        try {
-        	$this->beforeResourceCreate($data);
-            $resource = $this->service->$createMethod($data);
-            $this->afterResourceCreate($resource);
-
-			return $this->jsonResponse(array('added' => $resource->uuid), 201);
-        } catch (Exception $e) {
-			// @todo set the status code accordingly
-            return $this->jsonResponse(array('error' => $e->getMessage()), 500);
-        }
+		// Unsupported, must go through request first
+		return $this->jsonResponse('Unsupported endpoint', 404);
 	}
 
 	/**
@@ -89,12 +73,12 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 	 * @param  mixed  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show($containerUuid, $id)
 	{
 		$resource = $this->service->findByPK($id);
 
 		if (!empty($resource)) {
-			return $this->jsonResponse($resource, 200);
+			return $this->jsonResponse(json_encode($resource, JSON_PRETTY_PRINT), 200);
 		} else {
 			return $this->jsonResponse('Record not found: ' . $id, 404);
 		}
@@ -106,7 +90,7 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 	 * @param  mixed  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit($containerUuid, $id)
 	{
 	    return $this->jsonResponse('Unsupported endpoint', 404);
 	}
@@ -117,7 +101,7 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 	 * @param  mixed  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update($containerUuid, $id)
 	{
 		$data = \Input::all();
 
@@ -129,9 +113,8 @@ abstract class AbstractResourceApiController extends AbstractResourceController
             $this->afterResourceUpdate($resource);
 
 			return $this->jsonResponse(array('updated' => $id), 200);
-
         } catch (Exception $e) {
-			return $this->jsonResponse(array('error' => $e->getMessage()), 500);
+            return $this->jsonResponse(array('error' => $e->getMessage()), 500);
         }
 	}
 
@@ -141,7 +124,7 @@ abstract class AbstractResourceApiController extends AbstractResourceController
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy($containerUuid, $id)
 	{
 		$deleteMethod = 'removeByPK';
 		$result = $this->service->$deleteMethod($id);

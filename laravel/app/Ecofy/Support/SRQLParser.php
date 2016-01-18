@@ -8,7 +8,7 @@ use Exception;
  * Usage:
  * $srqlParser = new SRQLParser();
  * $criteriaAst = $srqlParser->parse('a=3 AND b=4');
- * $criteriaAst->text;
+ * $criteriaAst->text; // Contains the critiera in EcoCriteria AST 
  */
 class SRQLParser
 {

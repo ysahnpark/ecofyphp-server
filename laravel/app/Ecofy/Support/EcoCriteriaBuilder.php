@@ -4,6 +4,12 @@ namespace App\Ecofy\Support;
 class EcoCriteriaBuilder
 {
     // @todo check for valid operator
+    /**
+     * logical comparision
+     * @param {string} $var -  the name of the property (i.e. column name)
+     * @param {string} $op  -  the boolean opeartor
+     * @param {mixed}  $rhs - the right-hand-side value or statement to compare
+     */
     public static function comparison($var, $op, $rhs)
     {
         return [
@@ -13,7 +19,12 @@ class EcoCriteriaBuilder
         ];
     }
 
-    public static function like($var, array $rhs)
+    public static function equals($var, $rhs)
+    {
+        return self::comparison($var, '=', $rhs);
+    }
+
+    public static function like($var, string $rhs)
     {
         return self::comparison($var, 'like', $rhs);
     }
@@ -35,7 +46,7 @@ class EcoCriteriaBuilder
     /**
      * Disjunction (OR operator)
      */
-    public static function disj($var, array $args)
+    public static function disj(array $args)
     {
         return self::node_(null, 'or', $args);
     }
